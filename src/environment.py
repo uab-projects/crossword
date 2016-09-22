@@ -21,5 +21,28 @@ The dictionary must be formated with one word per line. Thanks :)
 @param  filename    file to load
 @return wordlist as a list of strings (words)
 """
-def loadWordlist(filename):
+def loadWordList(filename):
     return [line.rstrip('\n') for line in open(filename, 'r')]
+
+"""
+
+@param wordlist a list contaning all the words
+@return formatWordList a list where each element is a list contaning
+        the same length words, one list for each word  length
+"""
+def formatWordList(wordlist):
+    formattedWordDic = {}
+    for word in wordlist:
+        key = len(word)
+        if key not in formattedWordDic.keys():
+            formattedWordDic[key] = []
+        formattedWordDic[key].append(word)
+
+    formattedWordList = []
+    for i in range(max(formattedWordDic.keys())+1):
+        if i in formattedWordDic.keys():
+            formattedWordList.append(formattedWordDic[i])
+        else:
+            formattedWordList.append([])
+
+    return formattedWordList

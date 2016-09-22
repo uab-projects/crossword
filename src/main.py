@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+from environment import *
+
 """
 Returns the domain for the given variable
 
@@ -40,7 +43,8 @@ Constraints can be defined as a list of tuples where each tuple means:
         a[b] = c[d]
 """
 def backtracking(avl, navl, constraints, domain):
-    if not navl return avl
+    if not navl:
+        return avl
     var = navl[0]
     for asignableValue in getDomain(var, domain):
         if satisfiesConstraints(var, assignableValue, avl, constraints):
@@ -50,4 +54,8 @@ def backtracking(avl, navl, constraints, domain):
     return False
 
 if __name__ == "__main__":
-    loadEnvironment()
+    wordlist = loadWordList("res/diccionari_CB.txt")
+    formated = formatWordList(wordlist)
+
+    print(formated)
+    
