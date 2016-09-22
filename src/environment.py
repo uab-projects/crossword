@@ -29,6 +29,8 @@ def loadWordList(filename):
     return [line.rstrip('\n') for line in open(filename, 'r')]
 
 """
+Returns the wordlist in a unique list which each element is a list containing
+all the words with same length that its index
 
 @param wordlist a list contaning all the words
 @return formatWordList a list where each element is a list contaning
@@ -50,3 +52,21 @@ def formatWordList(wordlist):
             formattedWordList.append([])
 
     return formattedWordList
+
+"""
+Read the crossword table and returns all the variables well formatted to go on
+    ([],[])
+
+@param  crossword the crossword in lists, one line per element
+@return navl
+"""
+def readVariables(crossword):
+    #(horizontal,vertical)
+    navl = ([],[])
+
+    for line in crossword:
+        for square in line:
+            if typeof(square)==int:
+                pass
+
+    return navl
