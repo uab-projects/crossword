@@ -27,10 +27,10 @@ def satisfiesConstraints(var, value, avl, constraints):
 """
 Checks if the solution is complete
 
-@param  res
+@param  avl assigned variable list
 @return
 """
-def completeSolution(res):
+def completeSolution(avl, constraints):
     #Check for complete solution
     pass
 """
@@ -38,6 +38,20 @@ Constraints can be defined as a list of tuples where each tuple means:
     being (a, b, c, d) the tuple, a and c are two words that have to have the
     same letter in position b and d respectively, in other words:
         a[b] = c[d]
+Assigned variable list format is:
+        (horizontal_vars,vertical_vars)
+    where horizontal vars are
+        horizontal_vars = ["VAR1_VALUE","VAR2_VALUE",...]
+    and the same for vertical values
+    if a variable just exists in one way, then set the value to None
+Not assigned variable list format is:
+        (horizontal_vars,vertical_vars)
+    where each list has empty strings (filled with spaces) or None if no
+    variable exists
+Domain
+    The domain is a list of lists, where each index in the list contains a list
+    of words of that index length (position 0 contains empty list, position 1
+    contains all words with 1 letters,...)
 """
 def backtracking(avl, navl, constraints, domain):
     if not navl return avl
@@ -45,7 +59,7 @@ def backtracking(avl, navl, constraints, domain):
     for asignableValue in getDomain(var, domain):
         if satisfiesConstraints(var, assignableValue, avl, constraints):
             applicant = backtracking([(var, asignableValue)]+avl , navl[1:], constraints, domain)
-            if completeSolution(applicant):
+            if completeSolution(applicant, constraints):
                 return res
     return False
 

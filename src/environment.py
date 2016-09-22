@@ -13,6 +13,10 @@ def loadCrossword(filename):
     return crossword
 
 """
+Converts the crossword into a list of unassigned variables
+"""
+
+"""
 Loads the wordlist into a list given the name of the file where is stored the
 dictionary
 
