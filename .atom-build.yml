@@ -1,1 +1,3 @@
-cmd: python Source/main.py
+cmd: python
+args:
+  - src/main.py
