@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+from constants import *
+
 """
 Loads the crossword into a list of lists with each item being a line of the
 crossword
