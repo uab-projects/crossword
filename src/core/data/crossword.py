@@ -1,4 +1,5 @@
 from constants import *
+from ..helpers.parse import *
 
 """
 Loads, reads and manipulates crossword puzzles in order
@@ -39,12 +40,22 @@ class Crossword(object):
 	"""
 	def _format():
 	    #(horizontal,vertical)
-	    navl = ([],[])
+	    words_horizontal = {}
+		words_vertical = {}
 		# read horizontal
 		var = ""
 	    for line in self._crossword:
 	        for item in line:
-	            if item == CROSSWORD
+	            if len(var):
+					# reading a variable
+				else:
+					# not reading variable
+					# empty field / other orientation word
+					if item == CROSSWORD_CELL_EMPTY or
+					item == CROSSWORD_CELL_WORD:
+						continue
+					# numeric field
+					elif isInteger(item):
 
 	    return navl
 
