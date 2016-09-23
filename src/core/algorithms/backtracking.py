@@ -106,7 +106,7 @@ class BacktrackingAlgorithm(object):
 	@return list with the values of the domain that the variable can have
 	"""
 	@abstractmethod
-	def _getDomainForVarible(self,var):
+	def _getDomainForVarible(self,variable):
 		pass
 
 	"""
@@ -130,3 +130,35 @@ class BacktrackingAlgorithm(object):
 	@abstractmethod
 	def _isCompleteSolution(self, avl):
 		pass
+
+	"""
+	Returns the domain attribute assigned
+
+	@return domain
+	"""
+	def getDomain(self):
+		return self._domain
+
+	"""
+	Returns the constraints stored
+
+	@return 	constraints
+	"""
+	def getConstraints(self):
+		return self._constraints
+
+
+"""
+Basic implementation of the basic algorithm, where main functions are
+implemented, like choosing the first variable from the navl to choose, etc...
+"""
+class BacktrackingBasicAlgorithm(BacktrackingAlgorithm):
+	def _chooseVariableToAssign(self, navl):
+		return navl[0]
+
+	def _removeVariableToAssign(self, navl, variable):
+		navl = navl[1:]
+		return navl
+
+	def _getDomainForVariable(self, variable):
+		return self.getDomain()
