@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from environment import *
+from core.data.wordlist import *
 
 """
 Returns the domain for the given variable
@@ -68,8 +67,5 @@ def backtracking(avl, navl, constraints, domain):
     return False
 
 if __name__ == "__main__":
-    wordlist = loadWordList("res/diccionari_CB.txt")
-    formated = formatWordList(wordlist)
-
-    print(formated)
-    
+    wordlist = WordList("res/diccionari_CB.txt")
+    print(wordlist)
