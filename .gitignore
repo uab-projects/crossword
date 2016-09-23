@@ -1,0 +1,3 @@
+# exclude Floobits configuration
+.floo
+.flooignore
