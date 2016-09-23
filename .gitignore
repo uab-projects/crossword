@@ -1,0 +1,6 @@
+# exclude Floobits configuration
+.floo
+.flooignore
+*.pyc
+*.pyo
+*.pyd
