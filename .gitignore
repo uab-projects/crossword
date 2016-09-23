@@ -1,3 +1,9 @@
 # exclude Floobits configuration
 .floo
 .flooignore
+<<<<<<< HEAD
+=======
+*.pyc
+*.pyo
+*.pyd
+>>>>>>> fc2990fe8f3114595e04119525ba6406e1aa9c02
