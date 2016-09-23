@@ -44,19 +44,31 @@ class Crossword(object):
 		words_vertical = {}
 		# read horizontal
 		var = ""
+		var_n = 0
 	    for line in self._crossword:
 	        for item in line:
 	            if len(var):
 					# reading a variable
+					if item == CROSSWORD_CELL_WORD or isInteger(item):
+						var += " "
+					elif item == CROSSWORD_CELL_EMPTY:
+						if len(var) > 1:
+							words_horizontal[var_n]=var
+						var = ""
 				else:
 					# not reading variable
 					# empty field / other orientation word
 					if item == CROSSWORD_CELL_EMPTY or
-					item == CROSSWORD_CELL_WORD:
+						item == CROSSWORD_CELL_WORD:
 						continue
 					# numeric field
 					elif isInteger(item):
-
+						var_n = int(item)
+						var += " "
+			# end of line
+			if len(var) > 1:
+				words_horizontal[var_n]=var
+			var = ""
 	    return navl
 
 	"""
