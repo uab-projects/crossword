@@ -4,3 +4,4 @@
 *.pyc
 *.pyo
 *.pyd
+src/__pycache/*
