@@ -69,4 +69,5 @@ def backtracking(avl, navl, constraints, domain):
 if __name__ == "__main__":
 	wordlist = WordList("res/diccionari_CB.txt")
 	crossword = Crossword("res/crossword_CB.txt")
-	print(wordlist)
+
+	print(crossword.getNAVL())

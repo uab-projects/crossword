@@ -45,7 +45,7 @@ class WordList(object):
 			formattedWordDic[key].append(word)
 
 		formattedWordList = []
-		for i in xrange(max(formattedWordDic.keys())+1):
+		for i in range(max(formattedWordDic.keys())+1):
 			if i in formattedWordDic.keys():
 				formattedWordList.append(formattedWordDic[i])
 			else:

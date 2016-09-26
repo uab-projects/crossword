@@ -1,4 +1,4 @@
-from constants import *
+from .constants import *
 from ..helpers.parse import *
 
 """
@@ -42,11 +42,16 @@ class Crossword(object):
 		#(horizontal,vertical)
 		words_horizontal = {}
 		words_vertical = {}
-		# read horizontal
+
 		var = ""
 		var_n = 0
-		for line in self._crossword:
-			for item in line:
+		rows = len(self._crossword)
+		cols = len(self._crossword[0])
+
+		# read horizontal
+		for i in range(rows):
+			for j in range(cols):
+				item = self._crossword[i][j]
 				if len(var):
 					# reading a variable
 					if item == CROSSWORD_CELL_WORD or isInteger(item):
@@ -69,7 +74,59 @@ class Crossword(object):
 			if len(var) > 1:
 				words_horizontal[var_n]=var
 			var = ""
-		print(navl)
+
+		#reinitialization of variables
+		var = ""
+		var_n = 0
+
+		# read vertical
+		for j in range(cols):
+			for i in range(rows):
+				item = self._crossword[i][j]
+				if len(var):
+					# reading a variable
+					if item == CROSSWORD_CELL_WORD or isInteger(item):
+						var += " "
+					elif item == CROSSWORD_CELL_EMPTY:
+						if len(var) > 1:
+							words_vertical[var_n]=var
+						var = ""
+				else:
+					# not reading variable
+					# empty field / other orientation word
+					if item == CROSSWORD_CELL_EMPTY or \
+						item == CROSSWORD_CELL_WORD:
+						continue
+					# numeric field
+					elif isInteger(item):
+						var_n = int(item)
+						var += " "
+			# end of line
+			if len(var) > 1:
+				words_vertical[var_n]=var
+			var = ""
+
+		#conversion into a tuple
+		words_horizontal_count = max(words_horizontal.keys())
+		words_vertical_count = max(words_vertical.keys())
+		vars_count = max(words_vertical_count, words_horizontal_count)
+
+		# create empty variables list
+		navl = (["" for _ in range(vars_count)],
+		["" for _ in range(vars_count)])
+		for i in range(vars_count):
+			try:
+				navl[ORIENT_HOR][i] = words_horizontal[i+1]
+			except KeyError:
+				pass
+			try:
+				navl[ORIENT_VER][i] = words_vertical[i+1]
+			except KeyError:
+				pass
+
+		#PARA JOEL, leído en castellano: Jo,el
+		#print(len(navl[0]),len(navl[1]))
+		#print(len(navl[1][9]))
 		return navl
 
 	"""
