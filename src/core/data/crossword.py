@@ -7,14 +7,14 @@ to send them to solve later
 """
 class Crossword(object):
 	"""
-	@attr	_crossword 	crossword puzze as lists of lists
+	@attr	_crossword	crossword puzze as lists of lists
 	"""
 	__slots__ = ["_crossword","_filename"]
 
 	"""
 	Initializes a new crossword reading the contents of a file
 
-	@param 	filename 	filename of the crossword to load
+	@param	filename	filename of the crossword to load
 	"""
 	def __init__(self, filename):
 		self._load(filename)
@@ -23,31 +23,31 @@ class Crossword(object):
 	Loads the crossword into a list of lists with each item being a line of the
 	crossword
 
-	@param  filename    file to load
+	@param	filename	file to load
 	@return crossword loaded as list of lists
 	"""
-	def _load(filename):
-	    crossword = [line.rstrip('\n') for line in open(filename, 'r')]
-	    crossword = list(map(lambda x: x.split("\t"),crossword))
-	    self._crossword = crossword
+	def _load(self,filename):
+		crossword = [line.rstrip('\n') for line in open(filename, 'r')]
+		crossword = list(map(lambda x: x.split("\t"),crossword))
+		self._crossword = crossword
 
 	"""
 	Formats a list of lists representing a crossword into an array of variables
 	that have to be filled
 
-	@return 	a list of unassigned variables represented as a tuple for h &
+	@return		a list of unassigned variables represented as a tuple for h &
 	v variables
 	"""
-	def _format():
-	    #(horizontal,vertical)
-	    words_horizontal = {}
+	def _format(self):
+		#(horizontal,vertical)
+		words_horizontal = {}
 		words_vertical = {}
 		# read horizontal
 		var = ""
 		var_n = 0
-	    for line in self._crossword:
-	        for item in line:
-	            if len(var):
+		for line in self._crossword:
+			for item in line:
+				if len(var):
 					# reading a variable
 					if item == CROSSWORD_CELL_WORD or isInteger(item):
 						var += " "
@@ -58,7 +58,7 @@ class Crossword(object):
 				else:
 					# not reading variable
 					# empty field / other orientation word
-					if item == CROSSWORD_CELL_EMPTY or
+					if item == CROSSWORD_CELL_EMPTY or \
 						item == CROSSWORD_CELL_WORD:
 						continue
 					# numeric field
@@ -69,12 +69,13 @@ class Crossword(object):
 			if len(var) > 1:
 				words_horizontal[var_n]=var
 			var = ""
-	    return navl
+		print(navl)
+		return navl
 
 	"""
 	Returns the name of the file loaded
 
-	@return 	filename
+	@return		filename
 	"""
 	def getOrigin(self):
 		return self._filename
@@ -82,7 +83,7 @@ class Crossword(object):
 	"""
 	Returns the crossword as a list of rows
 
-	@return 	crossword as list of rows
+	@return		crossword as list of rows
 	"""
 	def getLists(self):
 		return self._crossword
@@ -90,7 +91,7 @@ class Crossword(object):
 	"""
 	Returns the crossword as a list of unassigned variables
 
-	@return 	unassigned variables of the crossword
+	@return		unassigned variables of the crossword
 	"""
 	def getNAVL(self):
 		return self._format()
