@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from core.data.wordlist import *
 from core.data.crossword import *
 """

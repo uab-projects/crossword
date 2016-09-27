@@ -9,7 +9,7 @@ class Crossword(object):
 	"""
 	@attr	_crossword	crossword puzze as lists of lists
 	"""
-	__slots__ = ["_crossword","_filename"]
+	__slots__ = ["_crossword","_filename","_constraints"]
 
 	"""
 	Initializes a new crossword reading the contents of a file
@@ -42,9 +42,9 @@ class Crossword(object):
 		#(horizontal,vertical)
 		words_horizontal = {}
 		words_vertical = {}
-
+		navl = []
+		navl_i = 0
 		var = ""
-		var_n = 0
 		rows = len(self._crossword)
 		cols = len(self._crossword[0])
 
@@ -58,7 +58,9 @@ class Crossword(object):
 						var += " "
 					elif item == CROSSWORD_CELL_EMPTY:
 						if len(var) > 1:
-							words_horizontal[var_n]=var
+							words_horizontal[var_n]=navl_i
+							navl.append(var)
+							navl_i+=1
 						var = ""
 				else:
 					# not reading variable
@@ -72,12 +74,13 @@ class Crossword(object):
 						var += " "
 			# end of line
 			if len(var) > 1:
-				words_horizontal[var_n]=var
+				words_horizontal[var_n]=navl_i
+				navl.append(var)
+				navl_i+=1
 			var = ""
 
 		#reinitialization of variables
 		var = ""
-		var_n = 0
 
 		# read vertical
 		for j in range(cols):
@@ -89,7 +92,9 @@ class Crossword(object):
 						var += " "
 					elif item == CROSSWORD_CELL_EMPTY:
 						if len(var) > 1:
-							words_vertical[var_n]=var
+							words_vertical[var_n]=navl_i
+							navl.append(var)
+							navl_i+=1
 						var = ""
 				else:
 					# not reading variable
@@ -103,16 +108,19 @@ class Crossword(object):
 						var += " "
 			# end of line
 			if len(var) > 1:
-				words_vertical[var_n]=var
+				words_vertical[var_n]=navl_i
+				navl.append(var)
+				navl_i+=1
 			var = ""
 
-		#conversion into a tuple
+
+		#convers tuple
 		words_horizontal_count = max(words_horizontal.keys())
 		words_vertical_count = max(words_vertical.keys())
 		vars_count = max(words_vertical_count, words_horizontal_count)
 
 		# create empty variables list
-		navl = (["" for _ in range(vars_count)],
+		"""navl = (["" for _ in range(vars_count)],
 		["" for _ in range(vars_count)])
 		for i in range(vars_count):
 			try:
@@ -121,10 +129,9 @@ class Crossword(object):
 				pass
 			try:
 				navl[ORIENT_VER][i] = words_vertical[i+1]
-			except KeyError:
-				pass
+			except KeyError:pass#"""
 
-		#PARA JOEL, leído en castellano: Jo,el
+		#PARa JOEL leido en castellano: Jo,el
 		#print(len(navl[0]),len(navl[1]))
 		#print(len(navl[1][9]))
 		return navl
@@ -136,6 +143,16 @@ class Crossword(object):
 	"""
 	def getOrigin(self):
 		return self._filename
+
+	"""
+	Returns the constraints
+
+	Previously a call to getNAVL must be done in order to have some value
+
+	@return 	constraints
+	"""
+	def getConstraints(self):
+		return self._constraints
 
 	"""
 	Returns the crossword as a list of rows
@@ -152,3 +169,15 @@ class Crossword(object):
 	"""
 	def getNAVL(self):
 		return self._format()
+"""
+dic ={}
+
+dic[(3,5)]=(0,[variables])
+
+if .... :
+	dic[(3,5)][0] ++
+	dic[(3,5)[1].append()
+
+dic[(3,5)]=[(2,
+(3,1)]
+"""
