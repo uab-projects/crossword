@@ -402,11 +402,11 @@ class Crossword(object):
 		assert self._hasParsed
 		assert len(self._variables) == len(variables)
 		# init variables
-		variable = ""
-		variable_n = 0
+		varsize = 0
 		orient = None
 		filled_crossword = [[CROSSWORD_CELL_EMPTY for __ in range(self._cols)]\
 		 for _ in range(self._rows)]
+		word = ""
 
 		# parses the current cell to add constraint / variable
 		"""
@@ -418,20 +418,17 @@ class Crossword(object):
 		@param 	j 	crossword col index (0-based)
 		"""
 		def __parseCell(i,j):
+			nonlocal word
 			nonlocal orient
-			nonlocal variable
-			nonlocal variable_n
-			nonlocal constraints_table
+			nonlocal varsize
 			cell = self._crossword[i][j]
-			if len(variable):
+			if varsize:
 				# reading a variable
 				if cell == CROSSWORD_CELL_WORD or isInteger(cell):
-					constraints_table[i][j].append(
-						(len(self._variables),len(variable)))
-					variable += VARIABLE_FILL
+					filled_crossword[i][j] = word[varsize]
+					varsize += 1
 				elif cell == CROSSWORD_CELL_EMPTY:
-					self._addVariable(orient,variable_n,variable)
-					variable = ""
+					varsize = 0
 			else:
 				# not reading variable
 				# empty field / other orientation word
@@ -440,10 +437,12 @@ class Crossword(object):
 					return
 				# numeric field
 				elif isInteger(cell):
-					variable_n = int(cell)
-					constraints_table[i][j].append(
-						(len(self._variables),len(variable)))
-					variable += VARIABLE_FILL
+					index = self._from2DVars[orient][int(cell)-1]
+					if index ==	VARIABLE_REAL_UNKOWN:
+						return
+					word = variables[index]
+					filled_crossword[i][j] = word[varsize]
+					varsize += 1
 				# field unknown
 				else:
 					raise ValueError("unknown cell value %s "%(cell)
@@ -455,11 +454,7 @@ class Crossword(object):
 			for j in range(self._cols):
 				__parseCell(i,j)
 			# end of row
-			self._addVariable(orient,variable_n,variable)
-			variable = ""
-
-		# set horizontal limit
-		self._vars_limit = len(self._variables)
+			varsize = 0
 
 		# read vertical
 		orient = ORIENT_VER
@@ -467,25 +462,8 @@ class Crossword(object):
 			for i in range(self._rows):
 				__parseCell(i,j)
 			# end of col
-			self._addVariable(orient,variable_n,variable)
-			variable = ""
-
-		# set constraints to list
-		self._constraints = tuple([[] for _ in range(len(self._variables))])
-		for i in range(self._rows):
-			for j in range(self._cols):
-				constraints = constraints_table[i][j]
-				if len(constraints) == 2:
-					self._constraints[constraints[0][0]].append(
-						(constraints[0][1],constraints[1][0],
-						constraints[1][1]))
-					self._constraints[constraints[1][0]].append(
-						(constraints[1][1],constraints[0][0],
-						constraints[0][1]))
-				elif len(constraints) > 2:
-					raise ValueError("More than 2 constraints on a 2D world, "
-					+"I think you're wrong ;) (or maybe I'm)")
-		self._hasParsed = True
+			varsize = 0
+		return filled_crossword
 
 	"""
 	Returns the crossword attributes in a human-readable format

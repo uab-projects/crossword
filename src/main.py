@@ -91,4 +91,9 @@ if __name__ == "__main__":
 	crossword = Crossword(CROSSWORD_FILES[itemSet])
 	print(crossword.read().parse())
 	solver = CrosswordBasicBacktracking(wordlist.getList(),crossword.getConstraints())
-	print(solver(crossword.getVariables()))
+	solution = solver(crossword.getVariables())
+	print(solution)
+	for row in crossword.applyVariables(solution):
+		for col in row:
+			print(col+" ",end="")
+		print("")
