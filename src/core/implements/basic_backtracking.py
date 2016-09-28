@@ -1,8 +1,6 @@
-#~-~ coding: utf-8 ~-~
-from abc import ABCMeta,abstractmethod,abstractproperty
-
-class BacktrackingAlgorithm(object):
-	__metaclass__ = ABCMeta
+from ..algorithms.backtracking import *
+import sys
+class CrosswordBasicBacktracking(object):
 	"""
 	Class attributes:
 
@@ -39,9 +37,18 @@ class BacktrackingAlgorithm(object):
 	def __call__(self, navl):
 		assert not self._isSearching
 		self._isSearching = True
-		sol = self.__backtracking([],navl)
+		navl = self._transformNavl(navl)
+		avl = [None for _ in range(len(navl))]
+		sol = self.__backtracking(avl,navl)
 		self._isSearching = False
 		return sol
+
+	"""
+	Transforms data to be prepared for the algorithm
+	"""
+	def _transformNavl(self,navl):
+		navl = list(map(lambda i: (i,len(navl[i])), range(len(navl))))
+		return navl
 
 	"""
 	Defines the backtracking algorithm basic implementation, given the list of
@@ -63,15 +70,17 @@ class BacktrackingAlgorithm(object):
 			return avl
 		# Get variable to assign and its domain
 		variable = self._chooseVariableToAssign(navl)
-		variableDomain = self._getDomain(variable)
+		variableDomain = self._getDomainForVariable(variable)
 		# Loop over the possibilities of the domain
 		for asignableValue in variableDomain:
-			if self._satisfiesConstraints(variable, asignableValue):
-				solution = backtracking(
-					[(variable, asignableValue)]+avl,
-					self._removeVariableToAssign(variable))
-				if self._completeSolution(avl,navl):
+			if self._satisfiesConstraints(avl, variable, asignableValue):
+				avl[variable[0]]=asignableValue
+				solution = self.__backtracking(avl,
+					self._removeVariableToAssign(navl,variable))
+				if self._isCompleteSolution(solution):
 					return solution
+				else:
+					avl[variable[0]] = None
 		return None
 
 	"""
@@ -81,9 +90,8 @@ class BacktrackingAlgorithm(object):
 	@param	navl	not assigned variable list
 	@return	a variable that has to be assigned
 	"""
-	@abstractmethod
 	def _chooseVariableToAssign(self, navl):
-		pass
+		return navl[0] # This is fucking temporary dear Carlos
 
 	"""
 	If the variable has been correctly assigned, we must remove them from the
@@ -94,9 +102,8 @@ class BacktrackingAlgorithm(object):
 	@param 	variable 	variable that has been assigned and must be returned
 	@return navl without variable in it
 	"""
-	@abstractmethod
 	def _removeVariableToAssign(self, navl, variable):
-		pass
+		return navl[1:]
 
 	"""
 	Given a variable that must be assigned, returns the domain that the variable
@@ -105,9 +112,8 @@ class BacktrackingAlgorithm(object):
 	@param 	variable		variable that we have to assign
 	@return list with the values of the domain that the variable can have
 	"""
-	@abstractmethod
 	def _getDomainForVariable(self,variable):
-		pass
+		return self._domain[variable[1]]
 
 	"""
 	Given a variable and it's supposed value assignation, checks if assigning
@@ -116,9 +122,15 @@ class BacktrackingAlgorithm(object):
 	@param	variable 	variable to assign
 	@param 	value 		value to assign to the variable
 	"""
-	@abstractmethod
-	def _satisfiesConstraints(self, variable, value):
-		pass
+	def _satisfiesConstraints(self, avl, variable, value):
+		constraints = self._constraints[variable[0]]
+		for constraint in constraints:
+			constrained_word = constraint[1]
+			if avl[constrained_word] == None:
+				continue
+			elif avl[constrained_word][constraint[2]] != value[constraint[0]]:
+				return False
+		return True
 
 	"""
 	Checks if the list of assigned values contain a valid solution for the
@@ -127,38 +139,5 @@ class BacktrackingAlgorithm(object):
 	@param 	avl 		assigned variables list
 	@return True if a complete solution, False if not
 	"""
-	@abstractmethod
-	def _isCompleteSolution(self, avl, navl):
-		pass
-
-	"""
-	Returns the domain attribute assigned
-
-	@return domain
-	"""
-	def getDomain(self):
-		return self._domain
-
-	"""
-	Returns the constraints stored
-
-	@return 	constraints
-	"""
-	def getConstraints(self):
-		return self._constraints
-
-
-"""
-Basic implementation of the basic algorithm, where main functions are
-implemented, like choosing the first variable from the navl to choose, etc...
-"""
-class BacktrackingBasicAlgorithm(BacktrackingAlgorithm):
-	def _chooseVariableToAssign(self, navl):
-		return navl[0]
-
-	def _removeVariableToAssign(self, navl, variable):
-		navl = navl[1:]
-		return navl
-
-	def _getDomainForVariable(self, variable):
-		return self.getDomain()
+	def _isCompleteSolution(self,avl):
+		return avl != None

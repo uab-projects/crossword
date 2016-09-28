@@ -68,7 +68,7 @@ class Crossword(object):
 		self._hasParsed = False
 		self._variables = []
 		self._vars_limit = 0
-		self._constraints = []
+		self._constraints = None
 		self._from2DVars = (None,None)
 		self._from1DVars = []
 
@@ -212,18 +212,20 @@ class Crossword(object):
 			variable = ""
 
 		# set constraints to list
+		self._constraints = tuple([[] for _ in range(len(self._variables))])
 		for i in range(self._rows):
 			for j in range(self._cols):
 				constraints = constraints_table[i][j]
 				if len(constraints) == 2:
-					self._constraints.append((
-					constraints[0][0],constraints[0][1],
-					constraints[1][0],constraints[1][1]
-				))
+					self._constraints[constraints[0][0]].append(
+						(constraints[0][1],constraints[1][0],
+						constraints[1][1]))
+					self._constraints[constraints[1][0]].append(
+						(constraints[1][1],constraints[0][0],
+						constraints[0][1]))
 				elif len(constraints) > 2:
 					raise ValueError("More than 2 constraints on a 2D world, "
 					+"I think you're wrong ;) (or maybe I'm)")
-
 		self._hasParsed = True
 
 	"""

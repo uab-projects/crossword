@@ -6,6 +6,7 @@ from core.data.crossword import *
 from core.data.constants import *
 import sys
 from core.helpers.parse import *
+from core.implements.basic_backtracking import *
 
 """
 Returns the domain for the given variable
@@ -89,3 +90,5 @@ if __name__ == "__main__":
 	print(wordlist.read().parse())
 	crossword = Crossword(CROSSWORD_FILES[itemSet])
 	print(crossword.read().parse())
+	solver = CrosswordBasicBacktracking(wordlist.getList(),crossword.getConstraints())
+	print(solver(crossword.getVariables()))

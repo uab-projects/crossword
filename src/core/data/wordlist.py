@@ -84,7 +84,7 @@ class WordList(object):
 	def _parse(self):
 		wordlist_bylength = []
 		while len(self._wordlist):
-			word = self._wordlist.pop()
+			word = self._wordlist.pop(0)
 			length = len(word)
 			while length >= len(wordlist_bylength):
 				wordlist_bylength.append([])
