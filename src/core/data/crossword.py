@@ -384,6 +384,110 @@ class Crossword(object):
 		return self._from2DVars[orient][num-1]
 
 	"""
+	Reads the crossword finding the variables that must be filled and fills in a
+	new crossword all the variables. Uses the following attributes
+		_crossword
+		_variables
+		_from2DVars
+		_from1DVars
+	attributes with their appropiate values
+
+	A successful call to read() and parse() must be done before calling this
+	method
+
+	@param 		variables filled to fill in the crossword
+	@throws 	ValueError 	if some character not allowed is found
+	"""
+	def applyVariables(self, variables):
+		assert self._hasParsed
+		assert len(self._variables) == len(variables)
+		# init variables
+		variable = ""
+		variable_n = 0
+		orient = None
+		filled_crossword = [[CROSSWORD_CELL_EMPTY for __ in range(self._cols)]\
+		 for _ in range(self._rows)]
+
+		# parses the current cell to add constraint / variable
+		"""
+		Given the i,j coordinates of the crossword of the cell, parses the
+		content of the cell and modifies the function current variable read,
+		and variable number in order to add variables and constraints
+
+		@param 	i 	crossword row index (0-based)
+		@param 	j 	crossword col index (0-based)
+		"""
+		def __parseCell(i,j):
+			nonlocal orient
+			nonlocal variable
+			nonlocal variable_n
+			nonlocal constraints_table
+			cell = self._crossword[i][j]
+			if len(variable):
+				# reading a variable
+				if cell == CROSSWORD_CELL_WORD or isInteger(cell):
+					constraints_table[i][j].append(
+						(len(self._variables),len(variable)))
+					variable += VARIABLE_FILL
+				elif cell == CROSSWORD_CELL_EMPTY:
+					self._addVariable(orient,variable_n,variable)
+					variable = ""
+			else:
+				# not reading variable
+				# empty field / other orientation word
+				if cell == CROSSWORD_CELL_EMPTY or \
+					cell == CROSSWORD_CELL_WORD:
+					return
+				# numeric field
+				elif isInteger(cell):
+					variable_n = int(cell)
+					constraints_table[i][j].append(
+						(len(self._variables),len(variable)))
+					variable += VARIABLE_FILL
+				# field unknown
+				else:
+					raise ValueError("unknown cell value %s "%(cell)
+					+"while parsing crossword cell [%d][%d]"%(i+1,j+1))
+
+		# read horizontal
+		orient = ORIENT_HOR
+		for i in range(self._rows):
+			for j in range(self._cols):
+				__parseCell(i,j)
+			# end of row
+			self._addVariable(orient,variable_n,variable)
+			variable = ""
+
+		# set horizontal limit
+		self._vars_limit = len(self._variables)
+
+		# read vertical
+		orient = ORIENT_VER
+		for j in range(self._cols):
+			for i in range(self._rows):
+				__parseCell(i,j)
+			# end of col
+			self._addVariable(orient,variable_n,variable)
+			variable = ""
+
+		# set constraints to list
+		self._constraints = tuple([[] for _ in range(len(self._variables))])
+		for i in range(self._rows):
+			for j in range(self._cols):
+				constraints = constraints_table[i][j]
+				if len(constraints) == 2:
+					self._constraints[constraints[0][0]].append(
+						(constraints[0][1],constraints[1][0],
+						constraints[1][1]))
+					self._constraints[constraints[1][0]].append(
+						(constraints[1][1],constraints[0][0],
+						constraints[0][1]))
+				elif len(constraints) > 2:
+					raise ValueError("More than 2 constraints on a 2D world, "
+					+"I think you're wrong ;) (or maybe I'm)")
+		self._hasParsed = True
+
+	"""
 	Returns the crossword attributes in a human-readable format
 
 	@return		string containing visual representation of the crossword
