@@ -3,6 +3,10 @@
 
 from core.data.wordlist import *
 from core.data.crossword import *
+from core.data.constants import *
+import sys
+from core.helpers.parse import *
+
 """
 Returns the domain for the given variable
 
@@ -68,7 +72,20 @@ def backtracking(avl, navl, constraints, domain):
 	return False
 
 if __name__ == "__main__":
-	wordlist = WordList("res/diccionari_CB.txt")
-	crossword = Crossword("res/crossword_CB.txt")
-
-	print(crossword.getNAVL())
+	itemSet = ITEMSET_DEFAULT
+	if len(sys.argv) > 1:
+		# defaultItemSet
+		strItemSet = sys.argv[1]
+		if not isInteger(strItemSet):
+			print ("ItemSet must be a number")
+		elif int(strItemSet) < 0 or int(strItemSet) >= len(WORDLIST_FILES):
+			print("ItemSet does not fit in the limits [%d-%d]"\
+				%(0,len(WORDLIST_FILES)-1))
+		else:
+			itemSet = int(strItemSet)
+	else:
+		print("Using default args")
+	wordlist = WordList(WORDLIST_FILES[itemSet])
+	print(wordlist.read().parse())
+	crossword = Crossword(CROSSWORD_FILES[itemSet])
+	print(crossword.read().parse())
