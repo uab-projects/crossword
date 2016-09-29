@@ -10,7 +10,7 @@ class CrosswordBasicBacktracking(object):
 	@attr 	_isSearching  protects the algorithm from being called twice
 	                      if the value is true, no more calls are allowed
 	"""
-	__slots__ = ["_domain","_constraints","_navl","_isSearching"]
+	__slots__ = ["_domain","_constraints","_navl","_isSearching","_vars_num"]
 
 	"""
 	Initializes a new backtracking algorithm with the given domain to set into
@@ -38,8 +38,10 @@ class CrosswordBasicBacktracking(object):
 		assert not self._isSearching
 		self._isSearching = True
 		navl = self._sortByConstraintsNumber(self._transformNavl(navl))
+		self._vars_num = len(navl)
+		constraints = [[] for _ in range(len(navl))]
 		avl = [None for _ in range(len(navl))]
-		sol = self.__backtracking(avl,navl)
+		sol = self.__backtracking(avl,navl,constraints)
 		self._isSearching = False
 		return sol
 
@@ -85,7 +87,7 @@ class CrosswordBasicBacktracking(object):
 					assigned
 	@return avl with the solution or None if no solution could be found
 	"""
-	def __backtracking(self, avl, navl):
+	def __backtracking(self, avl, navl, constraints):
 		# Check if finished assignations
 		if not navl:
 			return avl
@@ -94,14 +96,17 @@ class CrosswordBasicBacktracking(object):
 		variableDomain = self._getDomainForVariable(variable)
 		# Loop over the possibilities of the domain
 		for asignableValue in variableDomain:
-			if self._satisfiesConstraints(avl, variable, asignableValue):
+			if self._satisfiesConstraints(constraints, avl, variable, asignableValue):
 				avl[variable[0]]=asignableValue
+				constraints = self._updateConstraints(constraints,variable,asignableValue)
 				solution = self.__backtracking(avl,
-					self._removeVariableToAssign(navl,variable))
+					self._removeVariableToAssign(navl,variable),
+					constraints)
 				if self._isCompleteSolution(solution):
 					return solution
 				else:
 					avl[variable[0]] = None
+
 		return None
 
 	"""
@@ -136,6 +141,15 @@ class CrosswordBasicBacktracking(object):
 	def _getDomainForVariable(self,variable):
 		return self._domain[variable[1]]
 
+	def _updateConstraints(self,constraints, var, value):
+		i = var[0]
+		st_constraints = self._constraints[i]
+		new_constraints = [[] for _ in range(self._vars_num)]
+		for const in st_constraints:
+			new_constraints[const[1]].append((const[2],value[const[0]]))
+		print(constraints)
+		return constraints
+
 	"""
 	Given a variable and it's supposed value assignation, checks if assigning
 	the variable to the value satisfies all constraints
@@ -143,13 +157,10 @@ class CrosswordBasicBacktracking(object):
 	@param	variable 	variable to assign
 	@param 	value 		value to assign to the variable
 	"""
-	def _satisfiesConstraints(self, avl, variable, value):
-		constraints = self._constraints[variable[0]]
-		for constraint in constraints:
-			constrained_word = constraint[1]
-			if avl[constrained_word] == None:
-				continue
-			elif avl[constrained_word][constraint[2]] != value[constraint[0]]:
+	def _satisfiesConstraints(self, constraints, avl, var, value):
+		constraints_var = constraints[var[0]]
+		for constraint in constraints_var:
+			if value[constraint[0]] != constraint[1]:
 				return False
 		return True
 
