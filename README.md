@@ -29,7 +29,7 @@ Les proves s'han executat en dos PCs de sobre taula amb processador `Intel i7 47
 	------------------------------------------
 	Total time:		∞
 	```
-2. **Backtracking bàsic + millores heurístiques**
+2. **Backtracking bàsic + millora heurística**
 	- Sense `numpy`
 	- Agafem la variable de la llista amb més restriccions
 	- Sense *forward-checking*
