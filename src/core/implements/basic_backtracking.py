@@ -37,7 +37,7 @@ class CrosswordBasicBacktracking(object):
 	def __call__(self, navl):
 		assert not self._isSearching
 		self._isSearching = True
-		navl = self._transformNavl(navl)
+		navl = self._sortByConstraintsNumber(self._transformNavl(navl))
 		avl = [None for _ in range(len(navl))]
 		sol = self.__backtracking(avl,navl)
 		self._isSearching = False
@@ -45,10 +45,31 @@ class CrosswordBasicBacktracking(object):
 
 	"""
 	Transforms data to be prepared for the algorithm
+
+	@param 	navl 	unassigned variable list as list of strings
+	@return navl 	where each item is a tuple setting the reference to the
+	original variable and its length [(index,len),...]
 	"""
 	def _transformNavl(self,navl):
 		navl = list(map(lambda i: (i,len(navl[i])), range(len(navl))))
 		return navl
+
+	"""
+	Sorts the navl variables according to the number of restrictions they have
+	in order to then pick variables smartly
+	"""
+	def _sortByConstraintsNumber(self,navl):
+		constraints_per_var = list(map(lambda x: len(x),self._constraints))
+		new_navl = []
+
+		while len(constraints_per_var):
+			max_constraints = max(constraints_per_var)
+			max_index = constraints_per_var.index(max_constraints)
+			constraints_per_var.pop(max_index)
+			new_navl.append(navl[max_index])
+			navl.pop(max_index)
+
+		return new_navl
 
 	"""
 	Defines the backtracking algorithm basic implementation, given the list of

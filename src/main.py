@@ -28,10 +28,14 @@ if __name__ == "__main__":
 	time_load_start = time.time()
 	# Wordlist
 	wordlist = WordList(WORDLIST_FILES[itemSet])
-	print(wordlist.read().parse())
+	wordlist.read().parse()
+	if "--wordlist" in sys.argv:
+		print(wordlist)
 	# Crossword
 	crossword = Crossword(CROSSWORD_FILES[itemSet])
-	print(crossword.read().parse())
+	crossword.read().parse()
+	if "--crossword" in sys.argv:
+		print(crossword)
 	# Loading ended
 	time_load_end = time.time()
 	print("Ended loading data (spend %f seconds)"%(\
@@ -44,7 +48,7 @@ if __name__ == "__main__":
 	time_alg_end = time.time()
 	print("Ended backtracking algorithm (spent %f seconds)"%(\
 		time_alg_end-time_alg_start))
-	print(solution)
+	#print(solution)
 	for row in crossword.applyVariables(solution):
 		for col in row:
 			print(col+" ",end="")
