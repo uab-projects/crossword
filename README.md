@@ -4,7 +4,8 @@ Donat un *crossword* o mots encreuats, hem de, usant un diccionari trobar una so
 ## Algorismes
 S'usarà l'algorisme de cerca local *backtracking* i millores usant el *forward checking*
 ###### Notes
-En *sr.Ramón Baldrich* triga menys d'un minut (30-40s) en resoldre el *crossword* amb el diccionari gegant
+1. En *sr.Ramón Baldrich* triga menys d'un minut (30-40s) en resoldre el *crossword* amb el diccionari gegant
+2. Utilitzar nombres en comptes de caràcters. No copiar dominis *around the backtracking*, usar indexos referents als diccionaris inicials. Podem usar una tupla per cada domini d'una variable. Aquesta tupla binària indica les paraules encara vàlides per al domini de la variable alhora d'aplicar *forward-checking*
 # Història
 ## Temps
 Les proves s'han executat en dos PCs de sobre taula amb processador `Intel i7 4790k 4.0 Ghz` sota el sistema operatiu `Microsoft Windows 10 [10.0.14393]` i `Python 3.5.2`
