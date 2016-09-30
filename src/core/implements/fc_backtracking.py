@@ -1,5 +1,7 @@
 from ..algorithms.backtracking import *
+from itertools import compress
 import sys
+
 class CrosswordForwardCheckingBacktracking(object):
 	"""
 	Class attributes:
@@ -94,10 +96,10 @@ class CrosswordForwardCheckingBacktracking(object):
 		variable = self._chooseVariableToAssign(navl)
 		variableDomain = self._getDomainForVariable(variable,domains)
 		# Loop over the possibilities of the domain
-		for asignableValue in variableDomain:
+		for asignableIndex in variableDomain:
+			asignableValue = self._domain[variable[0]][asignableIndex]
 			if self._satisfiesConstraints(avl, variable, asignableValue):
-				domains = self._updateDomain(variable,variableDomain,navl,
-				domains)
+				self._updateDomain(var, constraints,inserted_constraints,domains,False)
 				if domains != None:
 					avl[variable[0]]=asignableValue
 					solution = self.__backtracking(avl,
@@ -107,6 +109,7 @@ class CrosswordForwardCheckingBacktracking(object):
 						return solution
 					else:
 						avl[variable[0]] = None
+						self._updateDomain(var,constraints,inserted_constraints,domains,True)
 		return None
 
 	"""
@@ -139,7 +142,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	@return list with the values of the domain that the variable can have
 	"""
 	def _getDomainForVariable(self,variable,domains):
-		return domains[variable[0]]
+		return compress(range(len(domains[variable[0]],variable[0])))
 
 	"""
 	Given a variable and it's supposed value assignation, checks if assigning
@@ -177,14 +180,17 @@ class CrosswordForwardCheckingBacktracking(object):
 	"""
 
 	"""
-	def _updateDomain(self, var, value, navl, domains):
-		pass
+	def _updateDomain(self, var, constraints, inserted_constraints, domains, val):
+		for constraint_ref in inserted_constraints:
+			constrained_var = constraint_ref[0]
+			constraint = constraints[constrained_var][constraint_ref[1]]
+			for i in domains[constrained_var]:
+				if self._domain[var[1]][i][constraint[0]] != constraint[1]:
+					domains[constrained_var][i] = val
 
 
 	def _transformDomains(self,navl):
 		new_domains = [[] for _ in range(len(navl))]
-
 		for var in navl:
-			new_domains[var[0]] = self._domain[var[1]]
-
+			new_domains[var[0]] = [True for _ in range(len(self._domain[var[1]]))]
 		return new_domains
