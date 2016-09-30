@@ -7,7 +7,6 @@ from core.data.crossword import *
 from core.data.constants import *
 from core.helpers.parse import *
 from core.implements.basic_backtracking import *
-from core.implements.forwardchecking_backtracking import *
 
 if __name__ == "__main__":
 	# Arguments parsing

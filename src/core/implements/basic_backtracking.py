@@ -115,11 +115,11 @@ class CrosswordBasicBacktracking(object):
 
 	@param update_list 		list with information of recent updates to constraints
 	@param constraints 		list of constraints
-	@param var 				variable we tried to assign	
+	@param var 				variable we tried to assign
 	"""
-def _removeFromConstraints(self, update_list, constraints, var):
+	def _removeFromConstraints(self, update_list, constraints, var):
+		return constraints.remove(update_list[var[0]])
 
-	 return constraints.remove(update_list[var[0]])
 	"""
 	Allows to define a function that will be called to assign the variable to
 	try to assign from the list of unassigned variables
@@ -158,7 +158,7 @@ def _removeFromConstraints(self, update_list, constraints, var):
 		st_constraints = self._constraints[i]
 		for const in st_constraints:
 			constraints[const[1]].append((const[2],value[const[0]]))
-			update_list.append((const[1], len(new_constraints-1)))
+			update_list.append((const[1], len(constraints[const[1]]-1)))
 		print(constraints)
 		return update_list
 
