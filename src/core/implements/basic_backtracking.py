@@ -98,17 +98,28 @@ class CrosswordBasicBacktracking(object):
 		for asignableValue in variableDomain:
 			if self._satisfiesConstraints(constraints, avl, variable, asignableValue):
 				avl[variable[0]]=asignableValue
-				constraints = self._updateConstraints(constraints,variable,asignableValue)
+				update_list = self._updateConstraints(constraints,variable,asignableValue)
 				solution = self.__backtracking(avl,
 					self._removeVariableToAssign(navl,variable),
 					constraints)
 				if self._isCompleteSolution(solution):
 					return solution
 				else:
-					avl[variable[0]] = None
+					self._removeFromUpdateList(update_list, constraints, var)
+
 
 		return None
+	"""
+	Allows to remove constraints that are considered not viable from the list
+	once it's known that the variable it's not part of the solution
 
+	@param update_list 		list with information of recent updates to constraints
+	@param constraints 		list of constraints
+	@param var 				variable we tried to assign	
+	"""
+def _removeFromConstraints(self, update_list, constraints, var):
+
+	 return constraints.remove(update_list[var[0]])
 	"""
 	Allows to define a function that will be called to assign the variable to
 	try to assign from the list of unassigned variables
@@ -143,12 +154,13 @@ class CrosswordBasicBacktracking(object):
 
 	def _updateConstraints(self,constraints, var, value):
 		i = var[0]
+		update_list=[]
 		st_constraints = self._constraints[i]
-		new_constraints = [[] for _ in range(self._vars_num)]
 		for const in st_constraints:
-			new_constraints[const[1]].append((const[2],value[const[0]]))
+			constraints[const[1]].append((const[2],value[const[0]]))
+			update_list.append((const[1], len(new_constraints-1)))
 		print(constraints)
-		return constraints
+		return update_list
 
 	"""
 	Given a variable and it's supposed value assignation, checks if assigning
