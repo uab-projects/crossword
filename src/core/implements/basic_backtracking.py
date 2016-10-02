@@ -97,6 +97,7 @@ class CrosswordBasicBacktracking(object):
 		# Loop over the possibilities of the domain
 		for asignableValue in variableDomain:
 			if self._satisfiesConstraints(constraints, avl, variable, asignableValue):
+				print("Assigned to variable %d value %s"%(variable[0],asignableValue))
 				avl[variable[0]]=asignableValue
 				update_list = self._updateConstraints(constraints,variable,asignableValue)
 				solution = self.__backtracking(avl,
