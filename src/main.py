@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Libraries
 import sys
 import time
 from core.data.wordlist import *
@@ -8,10 +9,18 @@ from core.data.constants import *
 from core.helpers.parse import *
 from core.implements.basic_backtracking import *
 from core.implements.fc_backtracking import *
+import core.log
+import logging
+
+# Constants
+LOGGER = logging.getLogger(__name__)
 
 if __name__ == "__main__":
+	# Welcome
+	LOGGER.info("Welcome to Crossword solver")
 	# Arguments parsing
 	itemSet = ITEMSET_DEFAULT
+	LOGGER.warning("Yep")
 	if len(sys.argv) > 1:
 		# defaultItemSet
 		strItemSet = sys.argv[1]
