@@ -105,7 +105,8 @@ class CrosswordBasicBacktracking(object):
 				if self._isCompleteSolution(solution):
 					return solution
 				else:
-					self._removeFromUpdateList(update_list, constraints, var)
+					avl[variable[0]] = None
+					self._removeFromConstraints(update_list, constraints)
 
 
 		return None
@@ -117,8 +118,9 @@ class CrosswordBasicBacktracking(object):
 	@param constraints 		list of constraints
 	@param var 				variable we tried to assign
 	"""
-	def _removeFromConstraints(self, update_list, constraints, var):
-		return constraints.remove(update_list[var[0]])
+	def _removeFromConstraints(self, update_list, constraints):
+		for item in update_list:
+			constraints[item[0]].pop(item[1])
 
 	"""
 	Allows to define a function that will be called to assign the variable to
@@ -158,7 +160,7 @@ class CrosswordBasicBacktracking(object):
 		st_constraints = self._constraints[i]
 		for const in st_constraints:
 			constraints[const[1]].append((const[2],value[const[0]]))
-			update_list.append((const[1], len(constraints[const[1]]-1)))
+			update_list.append((const[1], len(constraints[const[1]])-1))
 		print(constraints)
 		return update_list
 
