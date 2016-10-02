@@ -1,7 +1,6 @@
 from ..algorithms.backtracking import *
 from itertools import compress
 import sys
-
 class CrosswordForwardCheckingBacktracking(object):
 	"""
 	Class attributes:
@@ -12,7 +11,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	@attr 	_isSearching  protects the algorithm from being called twice
 	                      if the value is true, no more calls are allowed
 	"""
-	__slots__ = ["_domain","_constraints","_navl","_isSearching"]
+	__slots__ = ["_domain","_constraints","_navl","_isSearching","_vars_num","_variables"]
 
 	"""
 	Initializes a new backtracking algorithm with the given domain to set into
@@ -39,10 +38,13 @@ class CrosswordForwardCheckingBacktracking(object):
 	def __call__(self, navl):
 		assert not self._isSearching
 		self._isSearching = True
+		self._variables = navl
 		navl = self._sortByConstraintsNumber(self._transformNavl(navl))
-		avl = [None for _ in range(len(navl))]
+		self._vars_num = len(navl)
+		constraints = [[] for _ in range(len(navl))]
 		domains = self._transformDomains(navl)
-		sol = self.__backtracking(avl,navl,domains)
+		avl = [None for _ in range(len(navl))]
+		sol = self.__backtracking(avl,navl,constraints,domains)
 		self._isSearching = False
 		return sol
 
@@ -56,6 +58,12 @@ class CrosswordForwardCheckingBacktracking(object):
 	def _transformNavl(self,navl):
 		navl = list(map(lambda i: (i,len(navl[i])), range(len(navl))))
 		return navl
+
+	def _transformDomains(self,navl):
+		new_domains = [[] for _ in range(len(navl))]
+		for var in navl:
+			new_domains[var[0]] = [True for _ in range(len(self._domain[var[1]]))]
+		return new_domains
 
 	"""
 	Sorts the navl variables according to the number of restrictions they have
@@ -88,29 +96,63 @@ class CrosswordForwardCheckingBacktracking(object):
 					assigned
 	@return avl with the solution or None if no solution could be found
 	"""
-	def __backtracking(self, avl, navl, domains):
+	def __backtracking(self, avl, navl, constraints, domains):
 		# Check if finished assignations
 		if not navl:
 			return avl
 		# Get variable to assign and its domain
 		variable = self._chooseVariableToAssign(navl)
-		variableDomain = self._getDomainForVariable(variable,domains)
+		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain
 		for asignableIndex in variableDomain:
-			asignableValue = self._domain[variable[0]][asignableIndex]
-			if self._satisfiesConstraints(avl, variable, asignableValue):
-				self._updateDomain(var, constraints,inserted_constraints,domains,False)
-				if domains != None:
-					avl[variable[0]]=asignableValue
+			asignableValue = self._domain[variable[1]][asignableIndex]
+			if self._satisfiesConstraints(constraints, avl, variable, asignableValue):
+				avl[variable[0]]=asignableValue
+				update_list = self._updateConstraints(constraints,variable,asignableValue)
+				self._updateDomain(constraints,update_list,domains,False)
+				valid_domains = self._checkDomains(domains)
+				if valid_domains:
 					solution = self.__backtracking(avl,
-						self._removeVariableToAssign(navl,variable),
-						domains)
-					if self._isCompleteSolution(solution):
-						return solution
-					else:
-						avl[variable[0]] = None
-						self._updateDomain(var,constraints,inserted_constraints,domains,True)
+					self._removeVariableToAssign(navl,variable),
+					constraints,domains)
+				if valid_domains and self._isCompleteSolution(solution):
+					return solution
+				else:
+					avl[variable[0]] = None
+					self._updateDomain(constraints,update_list,domains,True)
+					self._removeFromConstraints(update_list, constraints)
+
 		return None
+
+	"""
+
+	"""
+	#Pendent d'optimitzar
+	def _updateDomain(self, constraints, inserted_constraints, domains, val):
+		for constraint_ref in inserted_constraints:
+			constraint = constraints[constraint_ref[0]][constraint_ref[1]]
+			for i in range(len(domains[constraint_ref[0]])):
+				if self._domain[len(self._variables[constraint_ref[0]])][i][constraint[0]] != constraint[1]:
+					domains[constraint_ref[0]][i] = val
+
+
+	def _checkDomains(self, domains):
+		for dom in domains:
+			if not any(dom):
+				return False
+		return True
+
+	"""
+	Allows to remove constraints that are considered not viable from the list
+	once it's known that the variable it's not part of the solution
+
+	@param update_list 		list with information of recent updates to constraints
+	@param constraints 		list of constraints
+	@param var 				variable we tried to assign
+	"""
+	def _removeFromConstraints(self, update_list, constraints):
+		for item in update_list:
+			constraints[item[0]].pop(item[1])
 
 	"""
 	Allows to define a function that will be called to assign the variable to
@@ -142,7 +184,17 @@ class CrosswordForwardCheckingBacktracking(object):
 	@return list with the values of the domain that the variable can have
 	"""
 	def _getDomainForVariable(self,variable,domains):
-		return compress(range(len(domains[variable[0]],variable[0])))
+		#return self._domain[variable[1]]
+		return compress(range(len(domains[variable[0]])),domains[variable[0]])
+
+	def _updateConstraints(self,constraints, var, value):
+		i = var[0]
+		update_list=[]
+		st_constraints = self._constraints[i]
+		for const in st_constraints:
+			constraints[const[1]].append((const[2],value[const[0]]))
+			update_list.append((const[1], len(constraints[const[1]])-1))
+		return update_list
 
 	"""
 	Given a variable and it's supposed value assignation, checks if assigning
@@ -151,13 +203,10 @@ class CrosswordForwardCheckingBacktracking(object):
 	@param	variable 	variable to assign
 	@param 	value 		value to assign to the variable
 	"""
-	def _satisfiesConstraints(self, avl, variable, value):
-		constraints = self._constraints[variable[0]]
-		for constraint in constraints:
-			constrained_word = constraint[1]
-			if avl[constrained_word] == None:
-				continue
-			elif avl[constrained_word][constraint[2]] != value[constraint[0]]:
+	def _satisfiesConstraints(self, constraints, avl, var, value):
+		constraints_var = constraints[var[0]]
+		for constraint in constraints_var:
+			if value[constraint[0]] != constraint[1]:
 				return False
 		return True
 
@@ -170,27 +219,3 @@ class CrosswordForwardCheckingBacktracking(object):
 	"""
 	def _isCompleteSolution(self,avl):
 		return avl != None
-
-	"""
-
-	"""
-	def _forwardChecking():
-		return False
-
-	"""
-
-	"""
-	def _updateDomain(self, var, constraints, inserted_constraints, domains, val):
-		for constraint_ref in inserted_constraints:
-			constrained_var = constraint_ref[0]
-			constraint = constraints[constrained_var][constraint_ref[1]]
-			for i in domains[constrained_var]:
-				if self._domain[var[1]][i][constraint[0]] != constraint[1]:
-					domains[constrained_var][i] = val
-
-
-	def _transformDomains(self,navl):
-		new_domains = [[] for _ in range(len(navl))]
-		for var in navl:
-			new_domains[var[0]] = [True for _ in range(len(self._domain[var[1]]))]
-		return new_domains

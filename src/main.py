@@ -7,6 +7,7 @@ from core.data.crossword import *
 from core.data.constants import *
 from core.helpers.parse import *
 from core.implements.basic_backtracking import *
+from core.implements.fc_backtracking import *
 
 if __name__ == "__main__":
 	# Arguments parsing
@@ -56,7 +57,7 @@ if __name__ == "__main__":
 	print("Starting Bactracking algorithm...")
 	time_alg_start = time.time()
 	# Choose algorithm
-	if "--backtracking" in sys.argv or True:
+	if "--backtracking" in sys.argv:
 		solver = CrosswordBasicBacktracking(wordlist.getList(),
 			crossword.getConstraints())
 	else:
