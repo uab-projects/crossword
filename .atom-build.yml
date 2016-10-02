@@ -1,3 +1,4 @@
 cmd: python src/main.py
 args:
   - "0"
+  - "--forward-checking"

@@ -1,6 +1,7 @@
 from ..algorithms.backtracking import *
+from itertools import compress
 import sys
-class CrosswordBasicBacktracking(object):
+class CrosswordForwardCheckingBacktracking(object):
 	"""
 	Class attributes:
 
@@ -10,7 +11,7 @@ class CrosswordBasicBacktracking(object):
 	@attr 	_isSearching  protects the algorithm from being called twice
 	                      if the value is true, no more calls are allowed
 	"""
-	__slots__ = ["_domain","_constraints","_navl","_isSearching","_vars_num"]
+	__slots__ = ["_domain","_constraints","_navl","_isSearching","_vars_num","_variables"]
 
 	"""
 	Initializes a new backtracking algorithm with the given domain to set into
@@ -37,11 +38,13 @@ class CrosswordBasicBacktracking(object):
 	def __call__(self, navl):
 		assert not self._isSearching
 		self._isSearching = True
+		self._variables = navl
 		navl = self._sortByConstraintsNumber(self._transformNavl(navl))
 		self._vars_num = len(navl)
 		constraints = [[] for _ in range(len(navl))]
+		domains = self._transformDomains(navl)
 		avl = [None for _ in range(len(navl))]
-		sol = self.__backtracking(avl,navl,constraints)
+		sol = self.__backtracking(avl,navl,constraints,domains)
 		self._isSearching = False
 		return sol
 
@@ -55,6 +58,12 @@ class CrosswordBasicBacktracking(object):
 	def _transformNavl(self,navl):
 		navl = list(map(lambda i: (i,len(navl[i])), range(len(navl))))
 		return navl
+
+	def _transformDomains(self,navl):
+		new_domains = [[] for _ in range(len(navl))]
+		for var in navl:
+			new_domains[var[0]] = [True for _ in range(len(self._domain[var[1]]))]
+		return new_domains
 
 	"""
 	Sorts the navl variables according to the number of restrictions they have
@@ -87,29 +96,52 @@ class CrosswordBasicBacktracking(object):
 					assigned
 	@return avl with the solution or None if no solution could be found
 	"""
-	def __backtracking(self, avl, navl, constraints):
+	def __backtracking(self, avl, navl, constraints, domains):
 		# Check if finished assignations
 		if not navl:
 			return avl
 		# Get variable to assign and its domain
 		variable = self._chooseVariableToAssign(navl)
-		variableDomain = self._getDomainForVariable(variable)
+		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain
-		for asignableValue in variableDomain:
+		for asignableIndex in variableDomain:
+			asignableValue = self._domain[variable[1]][asignableIndex]
 			if self._satisfiesConstraints(constraints, avl, variable, asignableValue):
 				avl[variable[0]]=asignableValue
 				update_list = self._updateConstraints(constraints,variable,asignableValue)
-				solution = self.__backtracking(avl,
+				self._updateDomain(constraints,update_list,domains,False)
+				valid_domains = self._checkDomains(domains)
+				if valid_domains:
+					solution = self.__backtracking(avl,
 					self._removeVariableToAssign(navl,variable),
-					constraints)
-				if self._isCompleteSolution(solution):
+					constraints,domains)
+				if valid_domains and self._isCompleteSolution(solution):
 					return solution
 				else:
 					avl[variable[0]] = None
+					self._updateDomain(constraints,update_list,domains,True)
 					self._removeFromConstraints(update_list, constraints)
 
-
 		return None
+
+	"""
+
+	"""
+	#Pendent d'optimitzar
+	def _updateDomain(self, constraints, inserted_constraints, domains, val):
+		for constraint_ref in inserted_constraints:
+			constraint = constraints[constraint_ref[0]][constraint_ref[1]]
+			for i in range(len(domains[constraint_ref[0]])):
+				if self._domain[len(self._variables[constraint_ref[0]])][i][constraint[0]] != constraint[1]:
+					domains[constraint_ref[0]][i] = val
+
+
+	def _checkDomains(self, domains):
+		for dom in domains:
+			if not any(dom):
+				return False
+		return True
+
 	"""
 	Allows to remove constraints that are considered not viable from the list
 	once it's known that the variable it's not part of the solution
@@ -151,8 +183,9 @@ class CrosswordBasicBacktracking(object):
 	@param 	variable		variable that we have to assign
 	@return list with the values of the domain that the variable can have
 	"""
-	def _getDomainForVariable(self,variable):
-		return self._domain[variable[1]]
+	def _getDomainForVariable(self,variable,domains):
+		#return self._domain[variable[1]]
+		return compress(range(len(domains[variable[0]])),domains[variable[0]])
 
 	def _updateConstraints(self,constraints, var, value):
 		i = var[0]
