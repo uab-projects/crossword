@@ -196,12 +196,17 @@ class Crossword(object):
 			for j in range(self._cols):
 				__parseCell(i,j)
 			# end of row
+			variables_now = len(self._variables)
 			self._addVariable(orient,variable_n,variable)
+			variables_later = len(self._variables)
+			if variables_later - variables_now == 0 and len(variable):
+				constraints_table[i][j].pop()
 			variable = ""
 
 		# set horizontal limit
 		self._vars_limit = len(self._variables)
 
+		variable = ""
 		# read vertical
 		orient = ORIENT_VER
 		for j in range(self._cols):
@@ -494,6 +499,7 @@ class Crossword(object):
 				realVar,range(len(self._variables)))),len(self._variables))
 			txt += "LIMIT:   First vertical variable is variable %d (0-index)"\
 			%(self._vars_limit)+"\n"
-			txt += "CNSTR:   %s (total: %d)\n"%(self._constraints,
-				len(self._constraints))
+			txt += "CNSTR:   \n"
+			for i in range(len(self._constraints)):
+				txt += "-> Var[%02d]:  %s\n"%(i,self._constraints[i])
 		return txt

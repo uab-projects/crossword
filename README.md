@@ -49,7 +49,25 @@ Les proves s'han executat en dos PCs de sobre taula amb processador `Intel i7 47
 	------------------------------------------
 	Total time:		∞
 	```
-2. **Backtracking + _forward-checking_**
+3. **Backtracking bàsic + restriccions dinàmiques + heurística**
+	- Sense `numpy`
+	- Agafem la variable de la llista amb més restriccions
+	- Sense *forward-checking*
+	- Domini separat per longituds de paraula
+	- Restriccions indexades per variable + **dinàmiques**
+	- Usem classes / objectes
+	- <span style="color:green">Fixed bug in crossword (last row var)</span>
+	```
+ 	SMALL SET:
+	Loading time: 	0.001501 +- 0.0005 seconds
+	Compute time:   0.000000 +- 0.0005 seconds
+	------------------------------------------
+	Total time:     0.001501 +- 0.0010 seconds
+
+	BIG SET:
+	Keep dreaming...
+	```
+4. **Backtracking + _forward-checking_**
 	- Sense `numpy`
 	- Agafem primera variable de la llista
 	- Sense *forward-checking*
