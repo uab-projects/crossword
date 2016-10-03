@@ -57,9 +57,14 @@ class WordList(object):
 	Reads a file containing a word per line into a list
 	"""
 	def _read(self):
-		self._wordlist = \
-			[line.rstrip('\n').rstrip('\r') for line in \
-			open(self._filename, 'r')]
+		try:
+			self._wordlist = \
+				[line.rstrip('\n').rstrip('\r') for line in \
+				open(self._filename, 'r')]
+		except:
+			self._wordlist = \
+				[line.rstrip('\n').rstrip('\r') for line in \
+				open(self._filename, 'r',encoding = "ISO-8859-1")]
 		self._wordcount = len(self._wordlist)
 		self._head = self._wordlist[:WORDS_HEAD]
 		self._tail = self._wordlist[-WORDS_TAIL:]
