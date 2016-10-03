@@ -471,6 +471,17 @@ class Crossword(object):
 		return filled_crossword
 
 	"""
+	Returns real representation of the 1D variable
+
+	@param 	index 	index of 1D variable
+	@return human readable real variable (H|V00)
+	"""
+	def getVariableString(self,index):
+		var=self.get2DVariable(index)
+		txt="H%02d" if var[0] == ORIENT_HOR else "V%02d"
+		return txt%var[1]
+
+	"""
 	Returns the crossword attributes in a human-readable format
 
 	@return		string containing visual representation of the crossword
@@ -491,12 +502,8 @@ class Crossword(object):
 			str(list(map(
 				lambda s: s.replace(VARIABLE_FILL,VARIABLE_FILL_SHOW),
 				self._variables))),len(self._variables))
-			def realVar(i):
-				var=self.get2DVariable(i)
-				txt="H%02d" if var[0] == ORIENT_HOR else "V%02d"
-				return txt%var[1]
 			txt += "MAP:     %s (total: %d)\n"%(list(map(
-				realVar,range(len(self._variables)))),len(self._variables))
+				self.getVariableString,range(len(self._variables)))),len(self._variables))
 			txt += "LIMIT:   First vertical variable is variable %d (0-index)"\
 			%(self._vars_limit)+"\n"
 			txt += "CNSTR:   \n"

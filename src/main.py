@@ -4,6 +4,11 @@
 import sys
 import time
 import logging
+from bs4 import BeautifulSoup
+import mwapi
+import platform
+import os
+import random
 
 # Modules
 from core.data.wordlist import *
@@ -92,6 +97,49 @@ def selectAlgorithm():
 	return alg
 
 """
+Given the solution returned from the crossword, searches over the internet for
+the definitions of the words appearing in the solution and shows the user the
+definitions so they can solve the crossword theyreselves
+
+@param 	solution 	solution to show hints
+"""
+def playGame(solution):
+	LOGGER.info("---- GAME MODE ----")
+	LOGGER.info("I want to play a game...")
+	session = mwapi.Session('https://ca.wiktionary.org')
+	for word_i in range(len(solution)):
+		word = solution[word_i].lower()
+		var = crossword.getVariableString(word_i)
+		resp = session.get(action='query',prop='extracts',titles=word)\
+		["query"]["pages"]
+		pages = list(resp.keys())
+		try:
+			extract = resp[pages[0]]["extract"]
+		except:
+			extract = None
+		parser = None
+		if extract:
+		 	parser = BeautifulSoup(extract,"html.parser").findAll("li")
+		definition = ""
+		if parser != None:
+			valid_defs = []
+			for info in parser:
+				text = info.getText()
+				if "Pronúncia" in text \
+				or "Exemples" in text \
+				or "Etimologia" in text \
+				or "Per a més informació vegeu" in text\
+				or len(text.split()) < 4:
+					continue
+				else:
+					valid_defs.append(text)
+			if len(valid_defs):
+				definition = random.choice(valid_defs)
+		if definition == "":
+			definition = word + " (no hem trobat cap definició)"
+		LOGGER.info("%s: %s",var,definition)
+
+"""
 Given a solution from the crossword, tries to print it over the screen, or logs
 that no solution was found if necessary
 
@@ -101,12 +149,21 @@ def showSolution(solution):
 	if solution == None:
 		LOGGER.info("The algorithm hasn't found any valid solution :(")
 	elif args.solution:
-		for row in crossword.applyVariables(solution):
-			LOGGER.info(row)
+		if args.play:
+			for row in crossword.getLists():
+				LOGGER.info(row)
+			playGame(solution)
+		else:
+			for row in crossword.applyVariables(solution):
+				LOGGER.info(row)
 	else:
 		LOGGER.info("The algorithm has found a valid solution :)")
 
 if __name__ == "__main__":
+	# Prepare coding
+	if platform.system() == "Windows":
+		os.system("chcp 65001")
+
 	# Parse arguments
 	args = parseArguments(DEFAULT_PARSER)
 

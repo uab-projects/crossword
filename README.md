@@ -3,6 +3,14 @@
 Donat un *crossword* o mots encreuats, hem de, usant un diccionari trobar una solució vàlida aplicant les regles del joc
 ## Algorismes
 S'usarà l'algorisme de cerca local *backtracking* i millores usant el *forward checking*
+
+## Instal·lació
+Es requereixen les següents llibreries per executar el projecte:
+ - Python 3.5.2
+ - numpy
+ - mwapi
+ - beautifulsoup4
+
 ###### Notes
 1. En *sr.Ramón Baldrich* triga menys d'un minut (30-40s) en resoldre el *crossword* amb el diccionari gegant
 2. Utilitzar nombres en comptes de caràcters. No copiar dominis *around the backtracking*, usar indexos referents als diccionaris inicials. Podem usar una tupla per cada domini d'una variable. Aquesta tupla binària indica les paraules encara vàlides per al domini de la variable alhora d'aplicar *forward-checking*
