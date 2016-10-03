@@ -127,7 +127,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	"""
 
 	"""
-	#Pendent d'optimitzar
+	#TO-DO: Pendent d'optimitzar
 	def _updateDomain(self, constraints, inserted_constraints, domains, val):
 		for constraint_ref in inserted_constraints:
 			constraint = constraints[constraint_ref[0]][constraint_ref[1]]
