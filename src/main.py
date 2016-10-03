@@ -3,6 +3,9 @@
 # Libraries
 import sys
 import time
+import logging
+
+# Modules
 from core.data.wordlist import *
 from core.data.crossword import *
 from core.data.constants import *
@@ -10,78 +13,137 @@ from core.helpers.parse import *
 from core.implements.basic_backtracking import *
 from core.implements.fc_backtracking import *
 import core.log
-import logging
+from cli.arguments.parsers import DEFAULT_PARSER
+from cli.arguments.constants import *
+
 
 # Constants
 LOGGER = logging.getLogger(__name__)
 
+# Functions
+"""
+Takes the system arguments vector and tries to parse the arguments in it given
+the argument parser specified and returns the namespace generated
+
+@param 	parser 	the ArgumentParser objects to use to parse the arguments
+"""
+def parseArguments(parser):
+	return parser.parse_args()
+
+"""
+Given the origin of the data for the wordlist, loads the wordlist and returns
+it, while giving some information about it if it's required
+
+@param 	origin 	the source to load the wordlist from
+@return wordlist valid object (or None if couldn't load)
+"""
+def loadWordlist(origin):
+	LOGGER.info("-> Loading wordlist")
+	wordlist = WordList(origin)
+	if args.timers > 1: 	time_load_wordlist_start = time.time()
+	wordlist.read()
+	if args.timers > 2:
+		LOGGER.info("--> Read   in %f seconds",time.time()-\
+		time_load_wordlist_start)
+		time_load_wordlist_start_parse = time.time()
+	wordlist.parse()
+	if args.timers > 2:
+		LOGGER.info("--> Parsed in %f seconds",time.time()-\
+		time_load_wordlist_start_parse)
+	if args.timers > 1:
+		LOGGER.info("--> Loaded in %f seconds",time.time()-\
+		time_load_wordlist_start)
+	if args.wordlist:
+		LOGGER.info(wordlist)
+	return wordlist
+
+"""
+Given the origin of the data for the crossword, loads the crossword and returns
+it, while giving some information about it if it's required
+
+@param 	origin 	the source to load the wordlist from
+@return crossword valid object (or None if couldn't load)
+"""
+def loadCrossword(origin):
+	crossword = Crossword(origin)
+	LOGGER.info("-> Loading crossword")
+	if args.timers > 1:		time_load_crossword_start = time.time()
+	crossword.read().parse()
+	if args.timers > 1:
+		LOGGER.info("--> Loaded in %f seconds",time.time()-\
+		time_load_crossword_start)
+	if args.crossword:
+		LOGGER.info(crossword)
+	return crossword
+
+"""
+Retrieves the algorithm object to use depending on the arguments
+
+@return algorithm callable object
+"""
+def selectAlgorithm():
+	alg = None
+	if args.algorithm == ALG_BACKTRACKING_SIMPLE:
+		alg = CrosswordBasicBacktracking(wordlist.getList(),
+			crossword.getConstraints())
+	elif args.algorithm == ALG_BACKTRACKING_FC:
+		alg = CrosswordForwardCheckingBacktracking(wordlist.getList(),
+			crossword.getConstraints())
+	return alg
+
+"""
+Given a solution from the crossword, tries to print it over the screen, or logs
+that no solution was found if necessary
+
+@param 	solution 	solution to print
+"""
+def showSolution(solution):
+	if solution == None:
+		LOGGER.info("The algorithm hasn't found any valid solution")
+	else:
+		for row in crossword.applyVariables(solution):
+			LOGGER.info(row)
+
 if __name__ == "__main__":
+	# Parse arguments
+	args = parseArguments(DEFAULT_PARSER)
+
 	# Welcome
 	LOGGER.info("Welcome to Crossword solver")
-	# Arguments parsing
-	itemSet = ITEMSET_DEFAULT
-	LOGGER.warning("Yep")
-	if len(sys.argv) > 1:
-		# defaultItemSet
-		strItemSet = sys.argv[1]
-		if not isInteger(strItemSet):
-			print ("ItemSet must be a number")
-		elif int(strItemSet) < 0 or int(strItemSet) >= len(WORDLIST_FILES):
-			print("ItemSet does not fit in the limits [%d-%d]"\
-				%(0,len(WORDLIST_FILES)-1))
-		else:
-			itemSet = int(strItemSet)
-	else:
-		print("Using default args")
 	# Load data
-	print("Loading data...")
-	time_load_start = time.time()
+	LOGGER.info("Loading crossword and wordlist")
+	if args.timers > 0:		time_load_start = time.time()
 	# Wordlist
-	wordlist = WordList(WORDLIST_FILES[itemSet])
-	time_load_wordlist_start = time.time()
-	wordlist.read()
-	print("Wordlist read in %f seconds"%(time.time()-\
-		time_load_wordlist_start))
-	time_load_wordlist_start_parse = time.time()
-	wordlist.parse()
-	print("Wordlist parsed in %f seconds"%(time.time()-\
-		time_load_wordlist_start_parse))
-	print("Wordlist loaded in %f seconds"%(time.time()-\
-		time_load_wordlist_start))
-	if "--wordlist" in sys.argv:
-		print(wordlist)
+	wordlist = loadWordlist(WORDLIST_FILES[\
+		0 if args.itemset == ITEMSET_SMALL else 1])
+
 	# Crossword
-	crossword = Crossword(CROSSWORD_FILES[itemSet])
-	time_load_crossword_start = time.time()
-	crossword.read().parse()
-	time_load_crossword_end = time.time()
-	print("Crossword loaded in %f seconds"%(time_load_crossword_end-\
-		time_load_crossword_start))
-	if "--crossword" in sys.argv:
-		print(crossword)
+	crossword = loadCrossword(CROSSWORD_FILES[\
+		0 if args.itemset == ITEMSET_SMALL else 1])
+
 	# Loading ended
-	time_load_end = time.time()
-	print("Ended loading data (spend %f seconds)"%(\
-		time_load_end-time_load_start))
-	print("Starting Bactracking algorithm...")
-	time_alg_start = time.time()
+	if args.timers > 0:
+		time_load_end = time.time()
+		LOGGER.info("Loaded all in %f seconds",
+		time_load_end-time_load_start)
+	else:
+		LOGGER.info("Loaded all data succesfully")
+
 	# Choose algorithm
-	if "--backtracking" in sys.argv:
-		solver = CrosswordBasicBacktracking(wordlist.getList(),
-			crossword.getConstraints())
+	alg = selectAlgorithm()
+
+	# Solve the problem
+	LOGGER.info("Started backtracking algorithm")
+	if args.timers > 0: 	time_alg_start = time.time()
+	solution = alg(crossword.getVariables())
+	if args.timers > 0:
+		time_alg_end = time.time()
+		LOGGER.info("Ended alg. in %f seconds",
+		time_alg_end-time_alg_start)
 	else:
-		solver = CrosswordForwardCheckingBacktracking(wordlist.getList(),
-			crossword.getConstraints())
-	solution = solver(crossword.getVariables())
-	time_alg_end = time.time()
-	print("Ended backtracking algorithm (spent %f seconds)"%(\
-		time_alg_end-time_alg_start))
-	#print(solution)
-	if(solution != None):
-		for row in crossword.applyVariables(solution):
-			for col in row:
-				print(col+" ",end="")
-			print("")
-	else:
-		print("You are a fail, and the algorithm too")
-	print("Total time: %f seconds"%(time_alg_end-time_load_start))
+		LOGGER.info("Ended succesfully backtracking algorithm")
+
+	# Solution
+	if args.timers > 0:
+		LOGGER.info("TOTAL TIME:   %f seconds",time_alg_end-time_load_start)
+	showSolution(solution)
