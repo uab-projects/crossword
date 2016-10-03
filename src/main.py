@@ -53,7 +53,7 @@ def loadWordlist(origin):
 	if args.timers > 1:
 		LOGGER.info("--> Loaded in %f seconds",time.time()-\
 		time_load_wordlist_start)
-	if args.wordlist:
+	if args.show_wordlist:
 		LOGGER.info(wordlist)
 	return wordlist
 
@@ -72,7 +72,7 @@ def loadCrossword(origin):
 	if args.timers > 1:
 		LOGGER.info("--> Loaded in %f seconds",time.time()-\
 		time_load_crossword_start)
-	if args.crossword:
+	if args.show_crossword:
 		LOGGER.info(crossword)
 	return crossword
 
@@ -116,12 +116,10 @@ if __name__ == "__main__":
 	LOGGER.info("Loading crossword and wordlist")
 	if args.timers > 0:		time_load_start = time.time()
 	# Wordlist
-	wordlist = loadWordlist(WORDLIST_FILES[\
-		0 if args.itemset == ITEMSET_SMALL else 1])
+	wordlist = loadWordlist(args.wordlist)
 
 	# Crossword
-	crossword = loadCrossword(CROSSWORD_FILES[\
-		0 if args.itemset == ITEMSET_SMALL else 1])
+	crossword = loadCrossword(args.crossword)
 
 	# Loading ended
 	if args.timers > 0:

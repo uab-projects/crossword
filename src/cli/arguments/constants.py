@@ -1,13 +1,20 @@
+# Libraries
+from core.data.constants import *
+
 # Itemset related
 """
 Itemset with small crossword + small dictionary
 """
-ITEMSET_SMALL = "small"
+ITEMSET_SMALL = {"name":"small",
+	"crossword":CROSSWORD_FILES[0],
+	"wordlist":WORDLIST_FILES[0]}
 
 """
 Itemset with big crossword + big dictionary
 """
-ITEMSET_BIG   = "big"
+ITEMSET_BIG = {"name":"big",
+	"crossword":CROSSWORD_FILES[1],
+	"wordlist":WORDLIST_FILES[1]}
 
 """
 Default itemset if not specified

@@ -24,12 +24,12 @@ DEFAULT_PARSER.add_argument("--itemset",
 	action="store",
 	nargs="?",
 	help="""specifies the crossword & wordlist to load (default is %s)"""%\
-		ITEMSET_DEFAULT,
+		ITEMSET_DEFAULT["name"],
 	type=str,
-	choices=[ITEMSET_SMALL,ITEMSET_BIG],
-	default=ITEMSET_DEFAULT
+	choices=[ITEMSET_SMALL["name"],ITEMSET_BIG["name"]],
+	default=ITEMSET_DEFAULT["name"]
 )
-DEFAULT_PARSER.add_argument("--crossword",
+DEFAULT_PARSER.add_argument("--show-crossword",
 	metavar="true|false",
 	action="store",
 	nargs="?",
@@ -39,7 +39,7 @@ DEFAULT_PARSER.add_argument("--crossword",
 	const=True,
 	default=SHOW_CROSSWORD_DEFAULT
 )
-DEFAULT_PARSER.add_argument("--wordlist",
+DEFAULT_PARSER.add_argument("--show-wordlist",
 	metavar="true|false",
 	action="store",
 	nargs="?",
@@ -48,6 +48,27 @@ DEFAULT_PARSER.add_argument("--wordlist",
 	type=evalTF,
 	const=True,
 	default=SHOW_WORDLIST_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-w","--wordlist",
+	metavar="filename",
+	action="store",
+	nargs="?",
+	help="""specifies the wordlist file to use to solve the crossword. It has
+	to be a file with a word per line, all uppercase or lowercase. Default is
+	%s"""%(ITEMSET_DEFAULT["wordlist"]),
+	type=str,
+	default=ITEMSET_DEFAULT["wordlist"]
+)
+DEFAULT_PARSER.add_argument("-c","--crossword",
+	metavar="filename",
+	action="store",
+	nargs="?",
+	help="""specifies the crossword file to use to load the problem. It has to
+	be a file with values of the crossword separed by columns with a tabulation
+	character and by rows with a row meaning a line. Default is '%s'"""%\
+		(ITEMSET_DEFAULT["crossword"]),
+	type=str,
+	default=ITEMSET_DEFAULT["crossword"]
 )
 DEFAULT_PARSER.add_argument("--solution",
 	metavar="true|false",
