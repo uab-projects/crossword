@@ -38,7 +38,7 @@ it, while giving some information about it if it's required
 @return wordlist valid object (or None if couldn't load)
 """
 def loadWordlist(origin):
-	LOGGER.info("-> Loading wordlist")
+	LOGGER.info("-> Loading wordlist (from %s)",origin)
 	wordlist = WordList(origin)
 	if args.timers > 1: 	time_load_wordlist_start = time.time()
 	wordlist.read()
@@ -66,7 +66,7 @@ it, while giving some information about it if it's required
 """
 def loadCrossword(origin):
 	crossword = Crossword(origin)
-	LOGGER.info("-> Loading crossword")
+	LOGGER.info("-> Loading crossword (from %s)",origin)
 	if args.timers > 1:		time_load_crossword_start = time.time()
 	crossword.read().parse()
 	if args.timers > 1:
@@ -115,6 +115,13 @@ if __name__ == "__main__":
 	# Load data
 	LOGGER.info("Loading crossword and wordlist")
 	if args.timers > 0:		time_load_start = time.time()
+
+	# Datasets
+	if args.wordlist == None:
+		args.wordlist = ITEMSET_BYNAME[args.itemset]["wordlist"]
+	if args.crossword == None:
+		args.crossword = ITEMSET_BYNAME[args.itemset]["crossword"]
+
 	# Wordlist
 	wordlist = loadWordlist(args.wordlist)
 

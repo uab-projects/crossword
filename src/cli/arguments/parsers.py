@@ -57,7 +57,7 @@ DEFAULT_PARSER.add_argument("-w","--wordlist",
 	to be a file with a word per line, all uppercase or lowercase. Default is
 	%s"""%(ITEMSET_DEFAULT["wordlist"]),
 	type=str,
-	default=ITEMSET_DEFAULT["wordlist"]
+	default=None
 )
 DEFAULT_PARSER.add_argument("-c","--crossword",
 	metavar="filename",
@@ -68,7 +68,7 @@ DEFAULT_PARSER.add_argument("-c","--crossword",
 	character and by rows with a row meaning a line. Default is '%s'"""%\
 		(ITEMSET_DEFAULT["crossword"]),
 	type=str,
-	default=ITEMSET_DEFAULT["crossword"]
+	default=None
 )
 DEFAULT_PARSER.add_argument("--solution",
 	metavar="true|false",

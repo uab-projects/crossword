@@ -21,6 +21,14 @@ Default itemset if not specified
 """
 ITEMSET_DEFAULT = ITEMSET_SMALL
 
+"""
+Mapping by names of itemsets
+"""
+ITEMSET_BYNAME = {
+	ITEMSET_SMALL["name"]: ITEMSET_SMALL,
+	ITEMSET_BIG["name"]: ITEMSET_BIG
+}
+
 # Information related
 """
 Shows information about the crossword given
