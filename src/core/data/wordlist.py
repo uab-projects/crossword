@@ -89,6 +89,13 @@ class WordList(object):
 	def _parse(self):
 		self._wordlist = [[w for w in self._wordlist if len(w) == num] \
 			for num in set(len(i) for i in self._wordlist)]
+		# check empty sizes
+		i=0
+		while i < len(self._wordlist):
+			if len(self._wordlist[i]) == 0 or len(self._wordlist[i][0]) == i:
+				i+=1
+			elif len(self._wordlist[i][0]) > i:
+				self._wordlist.insert(i,[])
 
 	"""
 	Returns the name of the file where the wordlist came from
