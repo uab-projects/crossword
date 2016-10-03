@@ -467,6 +467,17 @@ class Crossword(object):
 		return filled_crossword
 
 	"""
+	Returns a human-readable identification given the index of a variable
+
+	@param 	index	variable index (1D)
+	@return string representing the 2D variable (H|V00)
+	"""
+	def getVariableString(self,index):
+		var=self.get2DVariable(index)
+		txt="H%02d" if var[0] == ORIENT_HOR else "V%02d"
+		return txt%var[1]
+
+	"""
 	Returns the crossword attributes in a human-readable format
 
 	@return		string containing visual representation of the crossword
@@ -483,18 +494,19 @@ class Crossword(object):
 			txt += "VARS:    Maximum real variable number is %d\n"\
 				%self._last_word
 		if self._hasParsed:
-			txt += "NAVL:    %s (total: %d)\n"%(
-			list(map(lambda v: VARIABLE_FILL*v,self._variables)),
+			txt += "NAVL:    %s (total: %d)\n"%(self._variables,
 			len(self._variables))
-			def realVar(i):
-				var=self.get2DVariable(i)
-				txt="H%02d" if var[0] == ORIENT_HOR else "V%02d"
-				return txt%var[1]
 			txt += "MAP:     %s (total: %d)\n"%(list(map(
-				realVar,range(len(self._variables)))),len(self._variables))
+				self.getVariableString,range(len(self._variables)))),
+				len(self._variables))
 			txt += "LIMIT:   First vertical variable is variable %d (0-index)"\
 			%(self._vars_limit)+"\n"
 			txt += "CNSTR:   \n"
 			for i in range(len(self._constraints)):
-				txt += "-> Var[%02d]:  %s\n"%(i,self._constraints[i])
+				txt += "-> Var[%s]:  ["%(self.getVariableString(i))
+				for constraint in self._constraints[i]:
+					txt += "(%d, %s, %d)"%(constraint[0],
+					self.getVariableString(constraint[1]),
+					constraint[2])
+				txt += "]\n"
 		return txt
