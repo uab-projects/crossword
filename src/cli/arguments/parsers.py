@@ -1,5 +1,10 @@
 import argparse
+import ast
 from .constants import *
+
+# helping methods
+def evalTF(string):
+	return ast.literal_eval(string.title())
 
 # Default parser
 DEFAULT_PARSER = argparse.ArgumentParser(
@@ -30,7 +35,7 @@ DEFAULT_PARSER.add_argument("--crossword",
 	nargs="?",
 	help="""enables or disables printing the crossword information (%s
 	by default)"""%("enabled" if SHOW_CROSSWORD_DEFAULT else "disabled"),
-	type=bool,
+	type=evalTF,
 	const=True,
 	default=SHOW_CROSSWORD_DEFAULT
 )
@@ -40,7 +45,7 @@ DEFAULT_PARSER.add_argument("--wordlist",
 	nargs="?",
 	help="""enables or disables printing the wordlist information (%s
 	by default)"""%("enabled" if SHOW_WORDLIST_DEFAULT else "disabled"),
-	type=bool,
+	type=evalTF,
 	const=True,
 	default=SHOW_WORDLIST_DEFAULT
 )
@@ -50,7 +55,7 @@ DEFAULT_PARSER.add_argument("--solution",
 	nargs="?",
 	help="""enables or disables printing the solution as crossword (%s
 	by default)"""%("enabled" if SHOW_SOLUTION_DEFAULT else "disabled"),
-	type=bool,
+	type=evalTF,
 	const=True,
 	default=SHOW_SOLUTION_DEFAULT
 )

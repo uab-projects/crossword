@@ -99,10 +99,12 @@ that no solution was found if necessary
 """
 def showSolution(solution):
 	if solution == None:
-		LOGGER.info("The algorithm hasn't found any valid solution")
-	else:
+		LOGGER.info("The algorithm hasn't found any valid solution :(")
+	elif args.solution:
 		for row in crossword.applyVariables(solution):
 			LOGGER.info(row)
+	else:
+		LOGGER.info("The algorithm has found a valid solution :)")
 
 if __name__ == "__main__":
 	# Parse arguments
