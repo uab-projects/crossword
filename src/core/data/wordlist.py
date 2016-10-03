@@ -82,14 +82,8 @@ class WordList(object):
 	all the words with same length that its index
 	"""
 	def _parse(self):
-		wordlist_bylength = []
-		while len(self._wordlist):
-			word = self._wordlist.pop(0)
-			length = len(word)
-			while length >= len(wordlist_bylength):
-				wordlist_bylength.append([])
-			wordlist_bylength[length].append(word)
-		self._wordlist = wordlist_bylength
+		self._wordlist = [[w for w in self._wordlist if len(w) == num] \
+			for num in set(len(i) for i in self._wordlist)]
 
 	"""
 	Returns the name of the file where the wordlist came from
