@@ -186,7 +186,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	@return	a variable that has to be assigned
 	"""
 	def _chooseVariableToAssign(self, navl):
-		return navl[0] # This is fucking temporary dear Carlos
+		return navl[0]
 
 	"""
 	If the variable has been correctly assigned, we must remove them from the
