@@ -426,7 +426,7 @@ class Crossword(object):
 			if varsize:
 				# reading a variable
 				if cell == CROSSWORD_CELL_WORD or isInteger(cell):
-					filled_crossword[i][j] = chr(word[varsize])
+					filled_crossword[i][j] = word[varsize]
 					varsize += 1
 				elif cell == CROSSWORD_CELL_EMPTY:
 					varsize = 0
@@ -442,7 +442,7 @@ class Crossword(object):
 					if index ==	VARIABLE_REAL_UNKOWN:
 						return
 					word = variables[index]
-					filled_crossword[i][j] = chr(word[varsize])
+					filled_crossword[i][j] = word[varsize]
 					varsize += 1
 				# field unknown
 				else:
