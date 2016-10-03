@@ -89,7 +89,9 @@ class WordList(object):
 	all the words with same length that its index
 	"""
 	def _parse(self):
-		self._wordlist = [np.array([np.array(list(w))
+		# convert by lengths
+		self._wordlist = [np.array([np.array(list(map(ord,list(w))),
+			dtype=np.uint8)
 			for w in self._wordlist if len(w) == num])
 			for num in set(len(i) for i in self._wordlist)]
 		# check empty sizes
