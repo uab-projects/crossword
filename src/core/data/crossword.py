@@ -4,14 +4,10 @@ from ..helpers.parse import *
 
 #constants
 """
-Character to use to fill unassigned variable strings
-"""
-VARIABLE_FILL = '\0'
-"""
 Character to use to fill unassigned variable string when showing them to our
 loved users
 """
-VARIABLE_FILL_SHOW = '?'
+VARIABLE_FILL = '?'
 """
 Value to use when a map from a real world variable does not exist in the 1D
 variables because no variable exists / variable has no length enough
@@ -142,7 +138,7 @@ class Crossword(object):
 		assert self._hasRead
 		# init variables
 		self._variables = []
-		variable = ""
+		variable = 0
 		variable_n = 0
 		orient = None
 		constraints_table = tuple([
@@ -164,15 +160,15 @@ class Crossword(object):
 			nonlocal variable_n
 			nonlocal constraints_table
 			cell = self._crossword[i][j]
-			if len(variable):
+			if variable:
 				# reading a variable
 				if cell == CROSSWORD_CELL_WORD or isInteger(cell):
 					constraints_table[i][j].append(
-						(len(self._variables),len(variable)))
-					variable += VARIABLE_FILL
+						(len(self._variables),variable))
+					variable += 1
 				elif cell == CROSSWORD_CELL_EMPTY:
 					self._addVariable(orient,variable_n,variable)
-					variable = ""
+					variable = 0
 			else:
 				# not reading variable
 				# empty field / other orientation word
@@ -183,8 +179,8 @@ class Crossword(object):
 				elif isInteger(cell):
 					variable_n = int(cell)
 					constraints_table[i][j].append(
-						(len(self._variables),len(variable)))
-					variable += VARIABLE_FILL
+						(len(self._variables),variable))
+					variable += 1
 				# field unknown
 				else:
 					raise ValueError("unknown cell value %s "%(cell)
@@ -199,14 +195,14 @@ class Crossword(object):
 			variables_now = len(self._variables)
 			self._addVariable(orient,variable_n,variable)
 			variables_later = len(self._variables)
-			if variables_later - variables_now == 0 and len(variable):
+			if variables_later - variables_now == 0 and variable:
 				constraints_table[i][j].pop()
-			variable = ""
+			variable = 0
 
 		# set horizontal limit
 		self._vars_limit = len(self._variables)
+		variable = 0
 
-		variable = ""
 		# read vertical
 		orient = ORIENT_VER
 		for j in range(self._cols):
@@ -214,7 +210,7 @@ class Crossword(object):
 				__parseCell(i,j)
 			# end of col
 			self._addVariable(orient,variable_n,variable)
-			variable = ""
+			variable = 0
 
 		# set constraints to list
 		self._constraints = tuple([[] for _ in range(len(self._variables))])
@@ -283,7 +279,7 @@ class Crossword(object):
 	@param 	variable 	variable to add
 	"""
 	def _addVariable(self, orient, num, variable):
-		if(len(variable) >= WORDS_LEN_MIN):
+		if(variable >= WORDS_LEN_MIN):
 			index = len(self._variables)
 			self._variables.append(variable)
 			self._setVariableRelation(orient,num,index)
@@ -488,9 +484,8 @@ class Crossword(object):
 				%self._last_word
 		if self._hasParsed:
 			txt += "NAVL:    %s (total: %d)\n"%(
-			str(list(map(
-				lambda s: s.replace(VARIABLE_FILL,VARIABLE_FILL_SHOW),
-				self._variables))),len(self._variables))
+			list(map(lambda v: VARIABLE_FILL*v,self._variables)),
+			len(self._variables))
 			def realVar(i):
 				var=self.get2DVariable(i)
 				txt="H%02d" if var[0] == ORIENT_HOR else "V%02d"

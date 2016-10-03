@@ -53,7 +53,7 @@ class CrosswordBasicBacktracking(object):
 	original variable and its length [(index,len),...]
 	"""
 	def _transformNavl(self,navl):
-		navl = list(map(lambda i: (i,len(navl[i])), range(len(navl))))
+		navl = list(map(lambda i: (i,navl[i]), range(len(navl))))
 		return navl
 
 	"""

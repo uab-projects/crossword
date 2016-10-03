@@ -103,6 +103,7 @@ def showSolution(solution):
 	elif args.solution:
 		for row in crossword.applyVariables(solution):
 			LOGGER.info(row)
+
 	else:
 		LOGGER.info("The algorithm has found a valid solution :)")
 

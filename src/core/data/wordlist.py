@@ -59,8 +59,9 @@ class WordList(object):
 	Reads a file containing a word per line into a list
 	"""
 	def _read(self):
-		self._wordlist = np.genfromtxt(self._filename,dtype=np.str,converters={0:lambda x: x})
-
+		self._wordlist = np.genfromtxt(self._filename,
+		dtype=np.str,
+		converters={0:lambda x: x})
 		self._wordcount = len(self._wordlist)
 		self._head = self._wordlist[:WORDS_HEAD]
 		self._tail = self._wordlist[-WORDS_TAIL:]
@@ -83,7 +84,9 @@ class WordList(object):
 	all the words with same length that its index
 	"""
 	def _parse(self):
-		self._wordlist = [np.array([np.array(list(w)) for w in self._wordlist if len(w) == num]) for num in set(len(i) for i in self._wordlist)]
+		self._wordlist = [np.array([np.array(list(w))
+			for w in self._wordlist if len(w) == num])
+			for num in set(len(i) for i in self._wordlist)]
 		# check empty sizes
 		i=0
 		while i < len(self._wordlist):
