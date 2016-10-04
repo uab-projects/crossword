@@ -1,17 +1,36 @@
 import numpy as np
-from core.data.constants import *
 import sys
 import time
+import core.data.constants as constants
 
+# Constants
 """
 Unknown variable character to show when unassigned variable
 """
-CHAR_UNKNOWN = '?'
+DEFAULT_EMPTYCELL = '?'
 
 """
-Character set to use
+Pre-defined table character sets
 """
-CHAR_TABLESET_SINGLE = ('┌','┬','┐','├','┼','┤','└','┴','┘','│','─')
+CHAR_TABLESETS = {
+	"single":('┌','┬','┐','├','┼','┤','└','┴','┘','│','─'),
+	"double":('╔','╦','╗','╠','╬','╣','╚','╩','╝','║','═')
+}
+
+"""
+Default pre-defined table character set
+"""
+CHAR_TABLESETS_DEFAULT = CHAR_TABLESETS["single"]
+
+"""
+Default spacing
+"""
+SPACING_DEFAULT = 1
+
+"""
+Default frames per second
+"""
+FRAMES_DEFAULT = 24
 
 """
 A Crossword printer is an object that is able to print in the same location
@@ -19,58 +38,89 @@ the crossword given with the assigned variables passed in each print
 """
 class CrosswordPrinter(object):
 	"""
-	@attr	_crossword 	crossword object to print
+	@attr	_crossword 	crossword object to print (filled or not)
+	@attr 	_period 	number of time to elapse between prints
+	@attr 	_lastTime 	timestamp of the last printed update
+	@attr 	_charset 	characters to use to generate the board
+	@attr 	_emptycell 	character to use when initializing to set unkown values
+	@attr 	_spacing 	spacing to use as horizontal margin in cells
+	@attr 	_board 		the array containing ASCII values
+	@attr 	_isPrinting controls whether the printer is ready to be updated
 	"""
-	__slots__ = ["_crossword","_charset","_spacing","_board"]
+	__slots__ = ["_crossword","_period","_lastTime","_charset","_emptycell","_spacing",
+	"_board","_isPrinting"]
 
 	"""
 	Initializes a new printer given the crossword object
 
 	@param 	crossword 	crossword object to use
-	@param 	charset 	charset to use to generate beatiful tables
+	@pram 	frames 		number of frames to print the crossword per second
+						set to <=0 to always print
 	"""
-	def __init__(self, crossword,charset=CHAR_TABLESET_SINGLE,spacing=1):
+	def __init__(self, crossword,frames=FRAMES_DEFAULT):
 		self._crossword = crossword
-		self._charset = charset
-		self._spacing = spacing
-		self._setupBoard()
+		self._period = 1.0/frames if frames > 0 else 0
+		self._lastTime = 0
+		self._charset = CHAR_TABLESETS_DEFAULT
+		self._emptycell = DEFAULT_EMPTYCELL
+		self._spacing = SPACING_DEFAULT
+		self._isPrinting = False
+		self.setupBoard()
 
 	"""
-	Initializes a new board with the features of the crossword
+	Initializes a new board with the features of the crossword (rows and cols)
+	with empty cells and unknown values
 	"""
-	def _setupBoard(self):
+	def setupBoard(self):
 		self._board = np.chararray((self._crossword.getRows(),
 			self._crossword.getCols()))
-		self._board[:] = CROSSWORD_CELL_EMPTY
+		self._board[:] = constants.CROSSWORD_CELL_EMPTY
 		# fill with variables
 		for var in self._crossword.getVariables():
 			word = np.chararray((var[0],))
-			word[:] = CHAR_UNKNOWN
-			if var[1] == ORIENT_HOR:
+			word[:] = self._emptycell
+			if var[1] == constants.ORIENT_HOR:
 				self._board[var[2][0],][var[2][1]:var[2][1]+var[0]] = word
 			else:
 				self._board[:,var[2][1]][var[2][0]:var[2][0]+var[0]] = word
 
 	"""
 	Starts the printer, printing the initial empty crossword that will be
-	filled
+	filled and storing the cursor position
 	"""
 	def start(self):
 		sys.stdout.write(str(self))
 		# save cursor
 		sys.stdout.write("\033[s")
+		self._isPrinting = True
 
 	"""
-	Updates the given variable, setting its value to the given string
+	Given a variable and it's supposed value, updates the printed crossword
+	with the assigned value, if the framing period allows the function to print
+	and the crossword printer is ready (a previous call to start has been made)
+
+	If the value exceeds variable size, value will be printed till it fits in
+	the crossword according to the variable and no warning will be thrown
+
+	@param 	variable 	variable to update with an assigned value
+	@param 	value 		value to update the variable with
 	"""
 	def updateVariable(self,variable,value):
+		# check if can update
+		assert self._isPrinting
+		if self._period > (time.time() - self._lastTime):
+			return
+		else:
+			self._lastTime = time.time()
 		# board at cursor
-		sys.stdout.write("\033[%dA"%(self._crossword.getRows()*2-2*variable[2][0]))
-		sys.stdout.write("\033[%dC"%(2+variable[2][1]*4))
+		sys.stdout.write("\033[%dA"%(
+			self._crossword.getRows()*2-2*variable[2][0]))
+		sys.stdout.write("\033[%dC"%(
+			2+variable[2][1]*4))
 		# write variable
-		for letter in value:
-			sys.stdout.write(letter)
-			if variable[1] == ORIENT_HOR:
+		for i in range(variable[0]):
+			sys.stdout.write(value[i])
+			if variable[1] == constants.ORIENT_HOR:
 				sys.stdout.write("\033[%dC"%(self._spacing*2+1))
 			else:
 				sys.stdout.write("\033[1D\033[%dB"%(2))
@@ -78,22 +128,43 @@ class CrosswordPrinter(object):
 		sys.stdout.write("\033[u")
 
 	"""
-	Prints the assigned value list with the update function
+	Stops the printer and forces a new call to start to update new variables on
+	the crossword
 	"""
-	def updateSolution(self,avl):
-		variables = self._crossword.getVariables()
-		for i in range(len(avl)):
-			self.updateVariable(variables[i],"".join(list(map(chr,avl[i]))))
+	def stop(self):
+		self._isPrinting = False
 
 	"""
-	Prints the solution all at once, no start & stop
+	Updates the crossword given the assigned variable list with the update
+	method
+
+	WARNING: The input must be a numpy array
+
+	@param 	solution 	list with solutions to the crossword to print
 	"""
-	def printSolution(self,avl):
+	def updateSolution(self,solution):
+		period,self._period = self._period,0
+		variables = self._crossword.getVariables()
+		for i in range(len(solution)):
+			self.updateVariable(variables[i],"".join(
+				list(map(chr,solution[i]))))
+		self._period = period
+
+	"""
+	Given the solution of the crossword, prints the crossword with the solution
+	applied all at once, applying start & stop methods automatically
+
+	@param 	solution 	list with solutions to the crosswort to print
+	"""
+	def printSolution(self,solution):
 		self.start()
-		self.updateSolution(avl)
+		self.updateSolution(solution)
+		self.stop()
 
 	"""
 	Returns the current board as a string
+
+	@return beautiful text line-separed containing the board
 	"""
 	def __str__(self):
 		txt = ""
