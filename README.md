@@ -85,10 +85,10 @@ Les proves s'han executat en dos PCs de sobre taula amb processador `Intel i7 47
 	- Usem classes / objectes
 	```
  	SMALL SET:
-	Loading time: 	 +-  seconds
-	Compute time:    +-  seconds
+	Loading time: 	 0.001501 +- 0.0005 seconds
+	Compute time:    0.000501 +- 0.0005 seconds
 	------------------------------------------
-	Total time:      +-  seconds
+	Total time:      0.002002 +- 0.0010 seconds
 
 	BIG SET:
 	Loading time:   45.061957 +- 2 seconds
