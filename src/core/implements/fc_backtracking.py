@@ -51,7 +51,7 @@ class CrosswordForwardCheckingBacktracking(object):
 		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
 		# Call backtracking
-		sol = self.__backtracking(avl, navl, constraints, domains, None, 0)
+		sol = self.__backtracking(avl, navl, constraints, domains, None)
 		self._isSearching = False
 		return sol
 
@@ -131,7 +131,7 @@ class CrosswordForwardCheckingBacktracking(object):
 				if valid_domains:
 					solution = self.__backtracking(avl,
 					self._removeVariableToAssign(navl, variable), constraints,
-					new_domains, variable, prof+1)
+					new_domains, variable)
 				if valid_domains and self._isCompleteSolution(solution):
 					return solution
 				else:
