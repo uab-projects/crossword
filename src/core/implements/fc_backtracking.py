@@ -1,6 +1,8 @@
 from ..algorithms.backtracking import *
 from itertools import compress
 import sys
+import numpy as np
+
 class CrosswordForwardCheckingBacktracking(object):
 	"""
 	Class attributes:
@@ -37,33 +39,43 @@ class CrosswordForwardCheckingBacktracking(object):
 	"""
 	def __call__(self, navl):
 		assert not self._isSearching
+		# Saving status of the algorithm
 		self._isSearching = True
 		self._variables = navl
-		navl = self._sortByConstraintsNumber(self._transformNavl(navl))
 		self._vars_num = len(navl)
+		# Initializing variables
+		navl = self._sortByConstraintsNumber(self._getNavl())
 		constraints = [[] for _ in range(len(navl))]
-		domains = self._transformDomains(navl)
+		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
-		sol = self.__backtracking(avl,navl,constraints,domains)
+		# Call backtracking
+		sol = self.__backtracking(avl, navl, constraints, domains)
 		self._isSearching = False
 		return sol
 
 	"""
-	Transforms data to be prepared for the algorithm
+	Reads the variables assigned to the object to be solved and generate a list
+	of unassigned variables in the following format
+	 [var_0,var_1,var_2,...]
+	where var_i is a tuple (index,len) that tells the variable index and the
+	length of that variable
 
-	@param 	navl 	unassigned variable list as list of strings
-	@return navl 	where each item is a tuple setting the reference to the
-	original variable and its length [(index,len),...]
+	@return 	navl list
 	"""
-	def _transformNavl(self,navl):
-		navl = list(map(lambda i: (i,len(navl[i])), range(len(navl))))
-		return navl
+	def _getNavl(self):
+		return list(map(lambda i: (i,self._variables[i]),
+		range(len(self._variables))))
 
-	def _transformDomains(self,navl):
-		new_domains = [[] for _ in range(len(navl))]
-		for var in navl:
-			new_domains[var[0]] = [True for _ in range(len(self._domain[var[1]]))]
-		return new_domains
+	"""
+	Reads the variables assigned to the object that have to be solved and
+	looks in the domain for the words that fit it each variables length so it
+	generates an all True vector for each variable
+
+	@return 	domains list
+	"""
+	def _getDomains(self):
+		return [np.ones(len(self._domain[var]),dtype=np.bool)
+			for var in self._variables]
 
 	"""
 	Sorts the navl variables according to the number of restrictions they have
@@ -106,35 +118,47 @@ class CrosswordForwardCheckingBacktracking(object):
 		# Loop over the possibilities of the domain
 		for asignableIndex in variableDomain:
 			asignableValue = self._domain[variable[1]][asignableIndex]
-			if self._satisfiesConstraints(constraints, avl, variable, asignableValue):
+			if self._satisfiesConstraints(constraints, avl, variable,
+			asignableValue):
 				avl[variable[0]]=asignableValue
-				update_list = self._updateConstraints(constraints,variable,asignableValue)
-				self._updateDomain(constraints,update_list,domains,False)
+				new_constraints = self._updateConstraints(constraints, variable,
+				asignableValue)
+				new_domains = self._updateDomains(constraints, new_constraints,
+				domains)
 				valid_domains = self._checkDomains(domains)
 				if valid_domains:
 					solution = self.__backtracking(avl,
-					self._removeVariableToAssign(navl,variable),
-					constraints,domains)
+					self._removeVariableToAssign(navl, variable), constraints,
+					new_domains)
 				if valid_domains and self._isCompleteSolution(solution):
 					return solution
 				else:
 					avl[variable[0]] = None
-					self._updateDomain(constraints,update_list,domains,True)
-					self._removeFromConstraints(update_list, constraints)
+					self._removeFromConstraints(new_constraints, constraints)
 
 		return None
 
 	"""
+	Given the current dynamic constraints, the constraints that have just been
+	inserted, and the current domains, returns domains that are restricted
+	according to the inserted constraints
 
+	@param 	constraints 	dynamic constraints in the current state
+	@param 	new_constraints	inserted constraints references with the new
+							assigned value
+	@param 	domains 		current domains to restrict
+	@return list of new domains representing constraints applied
 	"""
-	#Pendent d'optimitzar
-	def _updateDomain(self, constraints, inserted_constraints, domains, val):
-		for constraint_ref in inserted_constraints:
+	def _updateDomains(self, constraints, new_constraints, domains):
+		# New domains to represent constraints
+		new_domains = [np.array(domain,copy=True) for domain in domains]
+		# Apply constraints
+		for constraint_ref in new_constraints:
 			constraint = constraints[constraint_ref[0]][constraint_ref[1]]
-			for i in range(len(domains[constraint_ref[0]])):
-				if self._domain[len(self._variables[constraint_ref[0]])][i][constraint[0]] != constraint[1]:
-					domains[constraint_ref[0]][i] = val
-
+			new_domains[constraint_ref[0]] *= np.where(
+				self._domain[self._variables[constraint_ref[0]]]
+				[:,constraint[0]] == constraint[1],True,False)
+		return new_domains
 
 	def _checkDomains(self, domains):
 		for dom in domains:
@@ -162,7 +186,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	@return	a variable that has to be assigned
 	"""
 	def _chooseVariableToAssign(self, navl):
-		return navl[0] # This is fucking temporary dear Carlos
+		return navl[0]
 
 	"""
 	If the variable has been correctly assigned, we must remove them from the
