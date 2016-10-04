@@ -4,8 +4,6 @@
 import sys
 import time
 import logging
-from bs4 import BeautifulSoup
-import mwapi
 import platform
 import os
 import random
@@ -104,11 +102,13 @@ definitions so they can solve the crossword theyreselves
 @param 	solution 	solution to show hints
 """
 def playGame(solution):
+	from bs4 import BeautifulSoup
+	import mwapi
 	LOGGER.info("---- GAME MODE ----")
 	LOGGER.info("I want to play a game...")
 	session = mwapi.Session('https://ca.wiktionary.org')
 	for word_i in range(len(solution)):
-		word = solution[word_i].lower()
+		word = "".join(list(map(chr,solution[word_i]))).lower()
 		var = crossword.getVariableString(word_i)
 		resp = session.get(action='query',prop='extracts',titles=word)\
 		["query"]["pages"]
