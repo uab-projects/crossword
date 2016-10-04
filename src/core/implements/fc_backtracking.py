@@ -45,9 +45,8 @@ class CrosswordForwardCheckingBacktracking(object):
 		self._vars_num = len(navl)
 		# Initializing variables
 		navl = self._sortByConstraintsNumber(self._getNavl())
-		#print("NAVL before reordering...",navl)
+		#Reordering the navl in order to speedup the application
 		navl = self._reorderNAVL(navl[1:],[navl[0]],navl[0])
-		#print("NAVL after reordering....",navl)
 		constraints = [[] for _ in range(len(navl))]
 		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
@@ -111,8 +110,7 @@ class CrosswordForwardCheckingBacktracking(object):
 					assigned
 	@return avl with the solution or None if no solution could be found
 	"""
-	def __backtracking(self, avl, navl, constraints, domains, prevar, prof):
-		#print("---> PROF:", prof)
+	def __backtracking(self, avl, navl, constraints, domains, prevar):
 		# Check if finished assignations
 		if not navl:
 			return avl
@@ -120,7 +118,6 @@ class CrosswordForwardCheckingBacktracking(object):
 		variable = self._chooseVariableToAssign(navl, prevar)
 		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain
-		#print("_backtracking: Trying to assign value to variable:",variable)
 		for asignableIndex in variableDomain:
 			asignableValue = self._domain[variable[1]][asignableIndex]
 			if self._satisfiesConstraints(constraints, avl, variable,
