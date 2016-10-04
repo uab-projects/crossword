@@ -85,6 +85,8 @@ class CrosswordForwardCheckingBacktracking(object):
 		constraints_per_var = list(map(lambda x: len(x),self._constraints))
 		new_navl = []
 
+		print("")
+
 		while len(constraints_per_var):
 			max_constraints = max(constraints_per_var)
 			max_index = constraints_per_var.index(max_constraints)
