@@ -18,7 +18,7 @@ from core.implements.fc_backtracking import *
 import core.log
 from cli.arguments.parsers import DEFAULT_PARSER
 from cli.arguments.constants import *
-
+from cli.printers.crossword import *
 
 # Constants
 LOGGER = logging.getLogger(__name__)
@@ -148,16 +148,16 @@ that no solution was found if necessary
 def showSolution(solution):
 	if solution == None:
 		LOGGER.info("The algorithm hasn't found any valid solution :(")
-	elif args.solution:
-		if args.play:
-			for row in crossword.getLists():
-				LOGGER.info(row)
-			playGame(solution)
-		else:
-			for row in crossword.applyVariables(solution):
-				LOGGER.info(row)
 	else:
-		LOGGER.info("The algorithm has found a valid solution :)")
+		printer = CrosswordPrinter(crossword)
+		if args.solution:
+			if args.play:
+				print(printer)
+				playGame(solution)
+			else:
+				printer.printSolution(solution)
+		else:
+			LOGGER.info("The algorithm has found a valid solution :)")
 
 if __name__ == "__main__":
 	# Prepare coding

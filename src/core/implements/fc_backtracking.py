@@ -63,7 +63,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	@return 	navl list
 	"""
 	def _getNavl(self):
-		return list(map(lambda i: (i,self._variables[i]),
+		return list(map(lambda i: (i,self._variables[i][0]),
 		range(len(self._variables))))
 
 	"""
@@ -74,7 +74,7 @@ class CrosswordForwardCheckingBacktracking(object):
 	@return 	domains list
 	"""
 	def _getDomains(self):
-		return [np.ones(len(self._domain[var]),dtype=np.bool)
+		return [np.ones(len(self._domain[var[0]]),dtype=np.bool)
 			for var in self._variables]
 
 	"""
@@ -156,7 +156,7 @@ class CrosswordForwardCheckingBacktracking(object):
 		for constraint_ref in new_constraints:
 			constraint = constraints[constraint_ref[0]][constraint_ref[1]]
 			new_domains[constraint_ref[0]] *= np.where(
-				self._domain[self._variables[constraint_ref[0]]]
+				self._domain[self._variables[constraint_ref[0]][0]]
 				[:,constraint[0]] == constraint[1],True,False)
 		return new_domains
 

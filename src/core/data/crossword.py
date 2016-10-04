@@ -138,7 +138,8 @@ class Crossword(object):
 		assert self._hasRead
 		# init variables
 		self._variables = []
-		variable = 0
+		variable_start = (0,0)
+		variable_len = 0
 		variable_n = 0
 		orient = None
 		constraints_table = tuple([
@@ -156,19 +157,21 @@ class Crossword(object):
 		"""
 		def __parseCell(i,j):
 			nonlocal orient
-			nonlocal variable
+			nonlocal variable_len
 			nonlocal variable_n
+			nonlocal variable_start
 			nonlocal constraints_table
 			cell = self._crossword[i][j]
-			if variable:
+			if variable_len:
 				# reading a variable
 				if cell == CROSSWORD_CELL_WORD or isInteger(cell):
 					constraints_table[i][j].append(
-						(len(self._variables),variable))
-					variable += 1
+						(len(self._variables),variable_len))
+					variable_len += 1
 				elif cell == CROSSWORD_CELL_EMPTY:
-					self._addVariable(orient,variable_n,variable)
-					variable = 0
+					self._addVariable(orient,variable_n,variable_len,
+					variable_start)
+					variable_len = 0
 			else:
 				# not reading variable
 				# empty field / other orientation word
@@ -178,9 +181,10 @@ class Crossword(object):
 				# numeric field
 				elif isInteger(cell):
 					variable_n = int(cell)
+					variable_start = (i,j)
 					constraints_table[i][j].append(
-						(len(self._variables),variable))
-					variable += 1
+						(len(self._variables),variable_len))
+					variable_len += 1
 				# field unknown
 				else:
 					raise ValueError("unknown cell value %s "%(cell)
@@ -193,15 +197,15 @@ class Crossword(object):
 				__parseCell(i,j)
 			# end of row
 			variables_now = len(self._variables)
-			self._addVariable(orient,variable_n,variable)
+			self._addVariable(orient,variable_n,variable_len,variable_start)
 			variables_later = len(self._variables)
-			if variables_later - variables_now == 0 and variable:
+			if variables_later - variables_now == 0 and variable_len:
 				constraints_table[i][j].pop()
-			variable = 0
+			variable_len = 0
 
 		# set horizontal limit
 		self._vars_limit = len(self._variables)
-		variable = 0
+		variable_len = 0
 
 		# read vertical
 		orient = ORIENT_VER
@@ -209,8 +213,8 @@ class Crossword(object):
 			for i in range(self._rows):
 				__parseCell(i,j)
 			# end of col
-			self._addVariable(orient,variable_n,variable)
-			variable = 0
+			self._addVariable(orient,variable_n,variable_len,variable_start)
+			variable_len = 0
 
 		# set constraints to list
 		self._constraints = tuple([[] for _ in range(len(self._variables))])
@@ -276,12 +280,13 @@ class Crossword(object):
 
 	@param 	orient 		orientation of the real variable
 	@param 	num 		number of the real variable (in the crossword)
-	@param 	variable 	variable to add
+	@param 	var_len 	variable to add length
+	@param 	var_start 	variable start position in crossword
 	"""
-	def _addVariable(self, orient, num, variable):
-		if(variable >= WORDS_LEN_MIN):
+	def _addVariable(self, orient, num, var_len, var_start):
+		if(var_len >= WORDS_LEN_MIN):
 			index = len(self._variables)
-			self._variables.append(variable)
+			self._variables.append((var_len,orient,var_start))
 			self._setVariableRelation(orient,num,index)
 
 	"""
