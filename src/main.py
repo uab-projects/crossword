@@ -9,6 +9,7 @@ import os
 import random
 
 # Modules
+import core.log
 from core.data.wordlist import *
 from core.data.crossword import *
 from core.data.constants import *
@@ -16,7 +17,6 @@ from core.helpers.parse import *
 from core.implements.basic_backtracking import *
 from core.implements.fc_backtracking import *
 from core.implements.live_backtracking import *
-import core.log
 from cli.arguments.parsers import DEFAULT_PARSER
 from cli.arguments.constants import *
 from cli.printers.crossword import *
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 		LOGGER.info("Ended alg. in %f seconds",
 		time_alg_end-time_alg_start)
 	else:
-		LOGGER.info("Ended succesfully backtracking algorithm")
+		LOGGER.info("Ended backtracking algorithm")
 
 	# Solution
 	if args.timers > 0:

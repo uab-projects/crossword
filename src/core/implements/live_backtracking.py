@@ -3,6 +3,10 @@ from itertools import compress
 import sys
 import numpy as np
 import core.data.constants as constants
+import logging
+
+LOGGER = logging.getLogger(__name__)
+
 
 class CrosswordLiveBacktracking(object):
 	"""
@@ -58,7 +62,12 @@ class CrosswordLiveBacktracking(object):
 		self._totalTries = 0
 		# Call backtracking
 		self._printer.start()
-		sol = self.__backtracking(avl, navl, constraints, domains)
+		sol = None
+		try:
+			sol = self.__backtracking(avl, navl, constraints, domains)
+		except KeyboardInterrupt as e:
+			self._printer.stop()
+			LOGGER.error("User interrupted the algorithm")
 		if sol != None:
 			self._printer.updateSolution(sol)
 		self._printer.stop()
