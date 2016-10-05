@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import core.data.constants as constants
 import logging
+import time
 
 LOGGER = logging.getLogger(__name__)
 
@@ -55,10 +56,8 @@ class CrosswordLiveBacktracking(object):
 		self._variables = navl
 		# Initializing variables
 		navl = self._sortByConstraintsNumber(self._getNavl())
-		print("Current NAVL before reordering is: \n", navl)
 		#Reordering the navl in order to speedup the application
 		navl = self._reorderNAVL(navl[1:],[navl[0]],navl[0])
-		print("Current NAVL after reordering is: \n", navl)
 		constraints = [[] for _ in range(len(navl))]
 		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
@@ -194,12 +193,13 @@ class CrosswordLiveBacktracking(object):
 		if not navl:
 			return avl
 		# Get variable to assign and its domain
-		# variable = self._chooseVariableToAssign(navl)
 		variable = self._nextVarByDomainValuesRemaining(navl, domains, prevar)
+		#variable = self._chooseVariableToAssign(navl)
 
 		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain
 		for asignableIndex in variableDomain:
+			time.sleep(self._printer._period)
 			asignableValue = self._domain[variable[1]][asignableIndex]
 			self._totalTries += 1
 			self._tries[variable[0]] += 1
