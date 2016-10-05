@@ -223,4 +223,3 @@ if __name__ == "__main__":
 		LOGGER.info("TOTAL TIME:   %f seconds",time_alg_end-time_load_start)
 	showSolution(solution)
 	LOGGER.info("Thanks for trusting our app ;)")
-	print("\033[K"*3)

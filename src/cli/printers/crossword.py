@@ -98,6 +98,7 @@ class CrosswordPrinter(object):
 	filled and storing the cursor position
 	"""
 	def start(self):
+		sys.stdout.write("\033[?25l")
 		sys.stdout.write(self.__str__(self._presp))
 		# save cursor
 		sys.stdout.write("\033[s")
@@ -150,6 +151,7 @@ class CrosswordPrinter(object):
 	the crossword
 	"""
 	def stop(self):
+		sys.stdout.write("\033[?25h"+"\033[K"*3)
 		self._isPrinting = False
 
 	"""
