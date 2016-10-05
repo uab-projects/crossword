@@ -45,11 +45,13 @@ class CrosswordForwardCheckingBacktracking(object):
 		self._vars_num = len(navl)
 		# Initializing variables
 		navl = self._sortByConstraintsNumber(self._getNavl())
+		#Reordering the navl in order to speedup the application
+		navl = self._reorderNAVL(navl[1:],[navl[0]],navl[0])
 		constraints = [[] for _ in range(len(navl))]
 		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
 		# Call backtracking
-		sol = self.__backtracking(avl, navl, constraints, domains)
+		sol = self.__backtracking(avl, navl, constraints, domains, None)
 		self._isSearching = False
 		return sol
 
@@ -95,6 +97,39 @@ class CrosswordForwardCheckingBacktracking(object):
 		return new_navl
 
 	"""
+	Sorts the navl variables according to the number of restrictions and
+	intersections they have between them in order to then pick variables
+	even smartly than before
+
+	@param	navl		not assigned remaining variable list
+	@param 	new_navl	not assigned picked variable list
+	@param	variable	variable selected to be filled in the next iteration
+	@return	navl		new not assigned variable list with the new order
+
+	"""
+	def _reorderNAVL(self, navl, new_navl, variable):
+		if not navl:
+			return new_navl
+		else:
+			m, var = 0, navl[0]
+			applicants = self._constraints[variable[0]]
+			for app in applicants:
+				value, length = len(self._constraints[app[1]]), self._variables[app[1]]
+				candidate = (app[1], length)
+
+				if (value > m) and (candidate in navl):
+					m, var = value, candidate
+
+			#New assignments
+			new_navl.append(var)
+			index = navl.index(var)
+			navl = navl[:index] + navl[index+1:]
+
+			self._reorderNAVL(navl, new_navl, var)
+
+			return new_navl
+
+	"""
 	Defines the backtracking algorithm basic implementation, given the list of
 	variables to assign and the already assigned variable, recurses it self
 	to search over the decision tree until it finds a valid assignation of
@@ -108,12 +143,12 @@ class CrosswordForwardCheckingBacktracking(object):
 					assigned
 	@return avl with the solution or None if no solution could be found
 	"""
-	def __backtracking(self, avl, navl, constraints, domains):
+	def __backtracking(self, avl, navl, constraints, domains, prevar):
 		# Check if finished assignations
 		if not navl:
 			return avl
 		# Get variable to assign and its domain
-		variable = self._chooseVariableToAssign(navl)
+		variable = self._chooseVariableToAssign(navl, prevar)
 		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain
 		for asignableIndex in variableDomain:
@@ -129,7 +164,7 @@ class CrosswordForwardCheckingBacktracking(object):
 				if valid_domains:
 					solution = self.__backtracking(avl,
 					self._removeVariableToAssign(navl, variable), constraints,
-					new_domains)
+					new_domains, variable)
 				if valid_domains and self._isCompleteSolution(solution):
 					return solution
 				else:
@@ -160,6 +195,14 @@ class CrosswordForwardCheckingBacktracking(object):
 				[:,constraint[0]] == constraint[1],True,False)
 		return new_domains
 
+	"""
+	Given the current domains checks if a variable will not be able to assign
+	a value cause it has no compatibilities with the others
+
+
+	@param 	domains 		current domains for each variable
+	@return True/False
+	"""
 	def _checkDomains(self, domains):
 		for dom in domains:
 			if not any(dom):
@@ -185,8 +228,8 @@ class CrosswordForwardCheckingBacktracking(object):
 	@param	navl	not assigned variable list
 	@return	a variable that has to be assigned
 	"""
-	def _chooseVariableToAssign(self, navl):
-		return navl[0]
+	def _chooseVariableToAssign(self, navl, variable):
+			return navl[0]
 
 	"""
 	If the variable has been correctly assigned, we must remove them from the
