@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import os
 import time
 import core.data.constants as constants
 
@@ -20,7 +21,8 @@ CHAR_TABLESETS = {
 """
 Default pre-defined table character set
 """
-CHAR_TABLESETS_DEFAULT = CHAR_TABLESETS["single"]
+CHAR_TABLESETS_DEFAULT_NAME = "single"
+CHAR_TABLESETS_DEFAULT = CHAR_TABLESETS[CHAR_TABLESETS_DEFAULT_NAME]
 
 """
 Default spacing
@@ -45,10 +47,11 @@ class CrosswordPrinter(object):
 	@attr 	_emptycell 	character to use when initializing to set unkown values
 	@attr 	_spacing 	spacing to use as horizontal margin in cells
 	@attr 	_board 		the array containing ASCII values
+	@attr 	_presp 		spaces to add to each line to center the crossword
 	@attr 	_isPrinting controls whether the printer is ready to be updated
 	"""
 	__slots__ = ["_crossword","_period","_lastTime","_charset","_emptycell","_spacing",
-	"_board","_isPrinting"]
+	"_board","_isPrinting","_presp"]
 
 	"""
 	Initializes a new printer given the crossword object
@@ -66,6 +69,12 @@ class CrosswordPrinter(object):
 		self._spacing = SPACING_DEFAULT
 		self._isPrinting = False
 		self.setupBoard()
+		tablelen = self._board.shape[1]*4+1
+		try:
+			self._presp = (int(os.popen('stty size', 'r').read().split()[1])-\
+			tablelen)//2
+		except:
+			self._presp = 0
 
 	"""
 	Initializes a new board with the features of the crossword (rows and cols)
@@ -80,16 +89,16 @@ class CrosswordPrinter(object):
 			word = np.chararray((var[0],))
 			word[:] = self._emptycell
 			if var[1] == constants.ORIENT_HOR:
-				self._board[var[2][0],][var[2][1]:var[2][1]+var[0]] = word
+				self._board[var[3][0],][var[3][1]:var[3][1]+var[0]] = word
 			else:
-				self._board[:,var[2][1]][var[2][0]:var[2][0]+var[0]] = word
+				self._board[:,var[3][1]][var[3][0]:var[3][0]+var[0]] = word
 
 	"""
 	Starts the printer, printing the initial empty crossword that will be
 	filled and storing the cursor position
 	"""
 	def start(self):
-		sys.stdout.write(str(self))
+		sys.stdout.write(self.__str__(self._presp))
 		# save cursor
 		sys.stdout.write("\033[s")
 		self._isPrinting = True
@@ -114,16 +123,25 @@ class CrosswordPrinter(object):
 			self._lastTime = time.time()
 		# board at cursor
 		sys.stdout.write("\033[%dA"%(
-			self._crossword.getRows()*2-2*variable[2][0]))
+			self._crossword.getRows()*2-2*variable[3][0]))
 		sys.stdout.write("\033[%dC"%(
-			2+variable[2][1]*4))
+			2+variable[3][1]*4+self._presp))
 		# write variable
 		for i in range(variable[0]):
-			sys.stdout.write(value[i])
+			sys.stdout.write(chr(value[i]))
 			if variable[1] == constants.ORIENT_HOR:
 				sys.stdout.write("\033[%dC"%(self._spacing*2+1))
 			else:
 				sys.stdout.write("\033[1D\033[%dB"%(2))
+		# restore cursor position
+		sys.stdout.write("\033[u")
+
+	"""
+	Adds a new line telling the status of the execution, as random string the
+	user desires
+	"""
+	def updateStatus(self,status):
+		sys.stdout.write(status)
 		# restore cursor position
 		sys.stdout.write("\033[u")
 
@@ -146,8 +164,7 @@ class CrosswordPrinter(object):
 		period,self._period = self._period,0
 		variables = self._crossword.getVariables()
 		for i in range(len(solution)):
-			self.updateVariable(variables[i],"".join(
-				list(map(chr,solution[i]))))
+			self.updateVariable(variables[i],solution[i])
 		self._period = period
 
 	"""
@@ -166,12 +183,13 @@ class CrosswordPrinter(object):
 
 	@return beautiful text line-separed containing the board
 	"""
-	def __str__(self):
+	def __str__(self,start_pos=0):
 		txt = ""
 		line_fmt = "{0}"+\
 			(self._charset[10]*(self._spacing*2+1)+"{1}")*\
-			(self._board.shape[0])+self._charset[10]*\
+			(self._board.shape[1]-1)+self._charset[10]*\
 			(self._spacing*2+1)+"{2}\n"
+		line_fmt = " "*start_pos+line_fmt
 		init_line = line_fmt.format(self._charset[0],self._charset[1],
 			self._charset[2])
 		separe_line = line_fmt.format(self._charset[3],self._charset[4],
@@ -180,7 +198,7 @@ class CrosswordPrinter(object):
 			self._charset[8])
 		txt += init_line
 		for row in range(self._board.shape[0]):
-			txt+=self._charset[9]
+			txt+=" "*start_pos+self._charset[9]
 			for col in range(self._board.shape[1]):
 				txt+= " "*self._spacing+self._board[row][col].decode("utf-8")+\
 				" "*self._spacing
@@ -191,3 +209,19 @@ class CrosswordPrinter(object):
 				txt+=separe_line
 		txt += end_line
 		return txt
+
+	"""
+	Returns the crossword assigned
+
+	@return 	crossword
+	"""
+	def getCrossword(self):
+		return self._crossword
+
+	"""
+	Sets the character set to use for the table styling
+
+	@param 	charset 	character set to print table
+	"""
+	def setStyle(self,charset):
+		self._charset = charset

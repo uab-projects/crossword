@@ -286,7 +286,7 @@ class Crossword(object):
 	def _addVariable(self, orient, num, var_len, var_start):
 		if(var_len >= WORDS_LEN_MIN):
 			index = len(self._variables)
-			self._variables.append((var_len,orient,var_start))
+			self._variables.append((var_len,orient,num,var_start))
 			self._setVariableRelation(orient,num,index)
 
 	"""

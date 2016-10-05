@@ -15,6 +15,7 @@ from core.data.constants import *
 from core.helpers.parse import *
 from core.implements.basic_backtracking import *
 from core.implements.fc_backtracking import *
+from core.implements.live_backtracking import *
 import core.log
 from cli.arguments.parsers import DEFAULT_PARSER
 from cli.arguments.constants import *
@@ -86,12 +87,18 @@ Retrieves the algorithm object to use depending on the arguments
 """
 def selectAlgorithm():
 	alg = None
+	LOGGER.info("Chose %s algorithm"%args.algorithm)
 	if args.algorithm == ALG_BACKTRACKING_SIMPLE:
 		alg = CrosswordBasicBacktracking(wordlist.getList(),
 			crossword.getConstraints())
 	elif args.algorithm == ALG_BACKTRACKING_FC:
 		alg = CrosswordForwardCheckingBacktracking(wordlist.getList(),
 			crossword.getConstraints())
+	elif args.algorithm == ALG_BACKTRACKING_LIVE:
+		crossword_printer = CrosswordPrinter(crossword,args.frames)
+		crossword_printer.setStyle(args.style)
+		alg = CrosswordLiveBacktracking(wordlist.getList(),
+			crossword.getConstraints(),crossword_printer)
 	return alg
 
 """
@@ -150,11 +157,12 @@ def showSolution(solution):
 		LOGGER.info("The algorithm hasn't found any valid solution :(")
 	else:
 		printer = CrosswordPrinter(crossword)
+		printer.setStyle(args.style)
 		if args.solution:
 			if args.play:
 				print(printer)
 				playGame(solution)
-			else:
+			elif args.algorithm != ALG_BACKTRACKING_LIVE:
 				printer.printSolution(solution)
 		else:
 			LOGGER.info("The algorithm has found a valid solution :)")
@@ -166,6 +174,9 @@ if __name__ == "__main__":
 
 	# Parse arguments
 	args = parseArguments(DEFAULT_PARSER)
+
+	# Set default tablesets
+	args.style = CHAR_TABLESETS[args.style]
 
 	# Welcome
 	LOGGER.info("Welcome to Crossword solver")
@@ -211,3 +222,5 @@ if __name__ == "__main__":
 	if args.timers > 0:
 		LOGGER.info("TOTAL TIME:   %f seconds",time_alg_end-time_load_start)
 	showSolution(solution)
+	LOGGER.info("Thanks for trusting our app ;)")
+	print("\033[K"*3)

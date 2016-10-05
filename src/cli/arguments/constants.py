@@ -57,6 +57,11 @@ Chooses the bactracking algorithm with forward checking
 ALG_BACKTRACKING_FC = "forwardchecking"
 
 """
+Chooses the backtracking forwardchecking algorithm with live prints
+"""
+ALG_BACKTRACKING_LIVE = "live"
+
+"""
 Default algorithm
 """
 ALG_DEFAULT = ALG_BACKTRACKING_FC

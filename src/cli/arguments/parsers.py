@@ -1,6 +1,7 @@
 import argparse
 import ast
 from .constants import *
+import cli.printers.crossword as crossword_printer
 
 # helping methods
 def evalTF(string):
@@ -19,7 +20,7 @@ DEFAULT_PARSER = argparse.ArgumentParser(
 )
 DEFAULT_PARSER.add_argument("-v","--version",
 	action="version",
-	version="Crossword 1.0")
+	version="Crossword 1.5")
 DEFAULT_PARSER.add_argument("--itemset",
 	action="store",
 	nargs="?",
@@ -90,10 +91,12 @@ DEFAULT_PARSER.add_argument("-t","--timers",
 DEFAULT_PARSER.add_argument("--algorithm",
 	action="store",
 	nargs="?",
-	help="""specifies the algorithm implementation to use (default is %s)"""%\
-		ALG_DEFAULT,
+	help="""specifies the algorithm implementation to use. Use %s to show """
+	"""how the variables go assigning while algorithm runs. Live algorithm"""
+	"""uses the fastest algorithm found. (default is %s)"""%\
+		(ALG_BACKTRACKING_LIVE,ALG_DEFAULT),
 	type=str,
-	choices=[ALG_BACKTRACKING_FC,ALG_BACKTRACKING_SIMPLE],
+	choices=[ALG_BACKTRACKING_FC,ALG_BACKTRACKING_SIMPLE,ALG_BACKTRACKING_LIVE],
 	default=ALG_DEFAULT
 )
 DEFAULT_PARSER.add_argument("--play","-p",
@@ -102,4 +105,23 @@ DEFAULT_PARSER.add_argument("--play","-p",
 	you can fill the crossword yourself""",
 	const=True,
 	default=False
+)
+DEFAULT_PARSER.add_argument("--style","-s",
+	action="store",
+	nargs="?",
+	help="""style of the beautiful crossword in the CLI (default is %s)"""%\
+		crossword_printer.CHAR_TABLESETS_DEFAULT_NAME,
+	type=str,
+	choices=list(crossword_printer.CHAR_TABLESETS.keys()),
+	default=crossword_printer.CHAR_TABLESETS_DEFAULT_NAME
+)
+DEFAULT_PARSER.add_argument("--frames","-f",
+	action="store",
+	nargs="?",
+	help="""when using %s algorithm that prints live status, tells the frames"""
+	"""per second to update the crossword & save compute time """
+	"""(default is %d)"""%\
+		(ALG_BACKTRACKING_LIVE,crossword_printer.FRAMES_DEFAULT),
+	type=int,
+	default=crossword_printer.FRAMES_DEFAULT
 )
