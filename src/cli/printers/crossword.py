@@ -76,6 +76,7 @@ class CrosswordPrinter(object):
 		except:
 			self._presp = 0
 
+
 	"""
 	Initializes a new board with the features of the crossword (rows and cols)
 	with empty cells and unknown values

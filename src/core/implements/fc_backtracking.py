@@ -45,8 +45,10 @@ class CrosswordForwardCheckingBacktracking(object):
 		self._vars_num = len(navl)
 		# Initializing variables
 		navl = self._sortByConstraintsNumber(self._getNavl())
+		print("Current NAVL before reordering is: \n", navl)
 		#Reordering the navl in order to speedup the application
 		navl = self._reorderNAVL(navl[1:],[navl[0]],navl[0])
+		print("Current NAVL after reordering is: \n", navl)
 		constraints = [[] for _ in range(len(navl))]
 		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
@@ -114,7 +116,7 @@ class CrosswordForwardCheckingBacktracking(object):
 			m, var = 0, navl[0]
 			applicants = self._constraints[variable[0]]
 			for app in applicants:
-				value, length = len(self._constraints[app[1]]), self._variables[app[1]]
+				value, length = len(self._constraints[app[1]]), self._variables[app[1]][0]
 				candidate = (app[1], length)
 
 				if (value > m) and (candidate in navl):

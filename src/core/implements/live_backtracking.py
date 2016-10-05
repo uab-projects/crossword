@@ -55,6 +55,10 @@ class CrosswordLiveBacktracking(object):
 		self._variables = navl
 		# Initializing variables
 		navl = self._sortByConstraintsNumber(self._getNavl())
+		print("Current NAVL before reordering is: \n", navl)
+		#Reordering the navl in order to speedup the application
+		navl = self._reorderNAVL(navl[1:],[navl[0]],navl[0])
+		print("Current NAVL after reordering is: \n", navl)
 		constraints = [[] for _ in range(len(navl))]
 		domains = self._getDomains()
 		avl = [None for _ in range(len(navl))]
@@ -114,6 +118,39 @@ class CrosswordLiveBacktracking(object):
 			navl.pop(max_index)
 
 		return new_navl
+
+	"""
+	Sorts the navl variables according to the number of restrictions and
+	intersections they have between them in order to then pick variables
+	even smartly than before
+
+	@param	navl		not assigned remaining variable list
+	@param 	new_navl	not assigned picked variable list
+	@param	variable	variable selected to be filled in the next iteration
+	@return	navl		new not assigned variable list with the new order
+
+	"""
+	def _reorderNAVL(self, navl, new_navl, variable):
+		if not navl:
+			return new_navl
+		else:
+			m, var = 0, navl[0]
+			applicants = self._constraints[variable[0]]
+			for app in applicants:
+				value, length = len(self._constraints[app[1]]), self._variables[app[1]][0]
+				candidate = (app[1], length)
+
+				if (value > m) and (candidate in navl):
+					m, var = value, candidate
+
+			#New assignments
+			new_navl.append(var)
+			index = navl.index(var)
+			navl = navl[:index] + navl[index+1:]
+
+			self._reorderNAVL(navl, new_navl, var)
+
+			return new_navl
 
 	"""
 	Defines the backtracking algorithm basic implementation, given the list of
