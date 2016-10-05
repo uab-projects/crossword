@@ -68,7 +68,7 @@ class CrosswordLiveBacktracking(object):
 		self._printer.start()
 		sol = None
 		try:
-			sol = self.__backtracking(avl, navl, constraints, domains)
+			sol = self.__backtracking(avl, navl, constraints, domains, None)
 		except KeyboardInterrupt as e:
 			self._printer.stop()
 			LOGGER.error("User interrupted the algorithm")
@@ -134,14 +134,14 @@ class CrosswordLiveBacktracking(object):
 		if not navl:
 			return new_navl
 		else:
-			m, var = 0, navl[0]
+			max_constraints, var = 0, navl[0]
 			applicants = self._constraints[variable[0]]
 			for app in applicants:
-				value, length = len(self._constraints[app[1]]), self._variables[app[1]][0]
+				current_constraints, length = len(self._constraints[app[1]]), self._variables[app[1]][0]
 				candidate = (app[1], length)
 
-				if (value > m) and (candidate in navl):
-					m, var = value, candidate
+				if (current_constraints > max_constraints) and (candidate in navl):
+					max_constraints, var = current_constraints, candidate
 
 			#New assignments
 			new_navl.append(var)
@@ -151,6 +151,27 @@ class CrosswordLiveBacktracking(object):
 			self._reorderNAVL(navl, new_navl, var)
 
 			return new_navl
+
+	"""
+	@param	navl		not assigned remaining variable list
+	@param 	new_navl	not assigned picked variable list
+	@param	variable	variable selected to be filled in the next iteration
+	@return	navl		new not assigned variable list with the new order
+	"""
+	def _nextVarByDomainValuesRemaining(self, navl, domains, prevar):
+		if not prevar:
+			return navl[0]
+
+		variable = navl[0]
+		minimum_domain_values = np.sum(domains[variable[0]])
+
+		for var in navl[1:]:
+			current_domain_values = np.sum(domains[var[0]])
+
+			if current_domain_values < minimum_domain_values:
+				variable = var
+				minimum_domain_values = current_domain_values
+		return variable
 
 	"""
 	Defines the backtracking algorithm basic implementation, given the list of
@@ -166,12 +187,14 @@ class CrosswordLiveBacktracking(object):
 					assigned
 	@return avl with the solution or None if no solution could be found
 	"""
-	def __backtracking(self, avl, navl, constraints, domains, prof=0):
+	def __backtracking(self, avl, navl, constraints, domains, prevar, prof=0):
 		# Check if finished assignations
 		if not navl:
 			return avl
 		# Get variable to assign and its domain
-		variable = self._chooseVariableToAssign(navl)
+		# variable = self._chooseVariableToAssign(navl)
+		variable = self._nextVarByDomainValuesRemaining(navl, domains, prevar)
+
 		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain
 		for asignableIndex in variableDomain:
@@ -211,13 +234,13 @@ class CrosswordLiveBacktracking(object):
 				avl[variable[0]]=asignableValue
 				new_constraints = self._updateConstraints(constraints, variable,
 				asignableValue)
-				new_domains = self._updateDomains(constraints, new_constraints,
+				new_domains = self._updateDomains2(constraints, new_constraints,
 				domains)
 				valid_domains = self._checkDomains(domains)
 				if valid_domains:
 					solution = self.__backtracking(avl,
 					self._removeVariableToAssign(navl, variable), constraints,
-					new_domains,prof+1)
+					new_domains, variable, prof+1)
 				if valid_domains and self._isCompleteSolution(solution):
 					return solution
 				else:
@@ -246,6 +269,17 @@ class CrosswordLiveBacktracking(object):
 			new_domains[constraint_ref[0]] *= np.where(
 				self._domain[self._variables[constraint_ref[0]][0]]
 				[:,constraint[0]] == constraint[1],True,False)
+		return new_domains
+
+	def _updateDomains2(self, constraints, new_constraints, domains):
+		# New domains to represent constraints
+		new_domains = [np.array(domain,copy=True) for domain in domains]
+		# Apply constraints
+		for variable_i in range(len(self._variables)):
+			for constraint in constraints[variable_i]:
+				new_domains[variable_i] *= np.where(
+					self._domain[self._variables[variable_i][0]][:,constraint[0]] ==\
+					constraint[1],True,False)
 		return new_domains
 
 	def _checkDomains(self, domains):
@@ -286,7 +320,9 @@ class CrosswordLiveBacktracking(object):
 	@return navl without variable in it
 	"""
 	def _removeVariableToAssign(self, navl, variable):
-		return navl[1:]
+		index = navl.index(variable)
+		navl = navl[:index] + navl[index+1:]
+		return navl
 
 	"""
 	Given a variable that must be assigned, returns the domain that the variable
