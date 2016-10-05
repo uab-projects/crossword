@@ -153,9 +153,11 @@ class CrosswordLiveBacktracking(object):
 			return new_navl
 
 	"""
+	Returns the next varaible to fill. That variable is the one who has less
+	domain values remaining.
+
 	@param	navl		not assigned remaining variable list
-	@param 	new_navl	not assigned picked variable list
-	@param	variable	variable selected to be filled in the next iteration
+	@param	prevar		variable selected in the previous iteration
 	@return	navl		new not assigned variable list with the new order
 	"""
 	def _nextVarByDomainValuesRemaining(self, navl, domains, prevar):
