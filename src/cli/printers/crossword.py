@@ -114,8 +114,9 @@ class CrosswordPrinter(object):
 
 	@param 	variable 	variable to update with an assigned value
 	@param 	value 		value to update the variable with
+	@param 	status 		status message to show after crossword
 	"""
-	def updateVariable(self,variable,value):
+	def updateVariable(self,variable,value,status=""):
 		# check if can update
 		assert self._isPrinting
 		if self._period > (time.time() - self._lastTime):
@@ -136,6 +137,7 @@ class CrosswordPrinter(object):
 				sys.stdout.write("\033[1D\033[%dB"%(2))
 		# restore cursor position
 		sys.stdout.write("\033[u")
+		self.updateStatus(status)
 
 	"""
 	Adds a new line telling the status of the execution, as random string the

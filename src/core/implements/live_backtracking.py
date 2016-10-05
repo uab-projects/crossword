@@ -133,8 +133,7 @@ class CrosswordLiveBacktracking(object):
 			self._totalTries += 1
 			self._tries[variable[0]] += 1
 			self._printer.updateVariable(self._variables[variable[0]],
-			asignableValue)
-			self._printer.updateStatus(
+			asignableValue,
 				"""Variable:    INDEX    = %-6d | REAL  = %s%-5d | LENGTH = %-6d | POS = %s\n"""
 				"""Domain:      SIZE     = %-6d | VALID = %-6d | TRIED  = %-6d |\n"""
 				"""Constraints: CURRENT  = %-6d | TOTAL = %-6d | LAST   = %-6s | \n"""
