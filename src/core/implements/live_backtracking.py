@@ -158,7 +158,7 @@ class CrosswordLiveBacktracking(object):
 
 	@param	navl		not assigned remaining variable list
 	@param	prevar		variable selected in the previous iteration
-	@return	navl		new not assigned variable list with the new order
+	@return	variable	variable to be filled in the current iteration
 	"""
 	def _nextVarByDomainValuesRemaining(self, navl, domains, prevar):
 		if not prevar:
