@@ -20,7 +20,7 @@ DEFAULT_PARSER = argparse.ArgumentParser(
 )
 DEFAULT_PARSER.add_argument("-v","--version",
 	action="version",
-	version="Crossword 1.5")
+	version="Crossword 3.141592")
 DEFAULT_PARSER.add_argument("--itemset",
 	action="store",
 	nargs="?",
