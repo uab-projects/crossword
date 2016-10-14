@@ -1,15 +1,21 @@
 # Crossword solver
-## Objectiu
-Donat un *crossword* o mots encreuats, hem de, usant un diccionari trobar una solució vàlida aplicant les regles del joc
-## Algorismes
-S'usarà l'algorisme de cerca local *backtracking* i millores usant el *forward checking*
+## Target
+Given a ***crossword*** or *mots encreuats*, using a dictionary,
+he have to find a valid soltion aplying the rules of the game.
+## Algorithm
+We'll use the *backtracking* algorithm and as a main improvement  *forward-checking*.
 
-## Instal·lació
-Es requereixen les següents llibreries per executar el projecte:
- - Python 3.5.2
+That's the lab project, but we don't will stop here, and we will make many other things like:
+ - live printing (controlling frames)
+ - play mode
+
+## Requirements
+The following libraries are required for the full experience:
  - numpy
  - mwapi
  - beautifulsoup4
+
+But, for the minimal use only `numpy` is required.
 
 ###### Notes
 1. En *sr.Ramón Baldrich* triga menys d'un minut (30-40s) en resoldre el *crossword* amb el diccionari gegant
@@ -96,3 +102,5 @@ Les proves s'han executat en dos PCs de sobre taula amb processador `Intel i7 47
 	------------------------------------------
 	Total time:		∞
 	```
+
+***Made with love in ETSE, UAB by ccebrecos & davidlj***

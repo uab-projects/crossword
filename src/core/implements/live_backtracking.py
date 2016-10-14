@@ -194,7 +194,6 @@ class CrosswordLiveBacktracking(object):
 			return avl
 		# Get variable to assign and its domain
 		variable = self._nextVarByDomainValuesRemaining(navl, domains, prevar)
-		#variable = self._chooseVariableToAssign(navl)
 
 		variableDomain = self._getDomainForVariable(variable, domains)
 		# Loop over the possibilities of the domain

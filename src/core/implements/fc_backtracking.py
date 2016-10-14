@@ -164,8 +164,6 @@ class CrosswordForwardCheckingBacktracking(object):
 		if not navl:
 			return avl
 		# Get variable to assign and its domain
-		# variable = self._chooseVariableToAssign(navl, prevar)
-
 		variable = self._nextVarByDomainValuesRemaining(navl, domains, prevar)
 
 		variableDomain = self._getDomainForVariable(variable, domains)
