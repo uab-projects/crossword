@@ -1,106 +1,37 @@
-# Crossword solver
-## Target
-Given a ***crossword*** or *mots encreuats*, using a dictionary,
-he have to find a valid soltion aplying the rules of the game.
-## Algorithm
-We'll use the *backtracking* algorithm and as a main improvement  *forward-checking*.
+# Crossword Solver
+## What is _Crossword Solver_?
+The aim of the project is to implement an example of a backtracking algorithm (using improvements like _Forward-Checking_ and some heuristics). To do this, we've dealt with the crossword problem. Given a crossword board and using a dictionary of valid words in a language, then we have to find a valid solution for that crossword applying the rules of the popular crossword game.
 
-That's the lab project, but we don't will stop here, and we will make many other things like:
- - live printing (controlling frames)
- - play mode
+### The algorithm
+We'll use a *backtracking algorithm* variation: *forward-checking*, with some heuristics (_LWF_: Largest Word First, _MCV_: Most Constraining Values and _MRV_: Minimum Remaining Values) to improve the solving speed
 
-## Requirements
-The following libraries are required for the full experience:
- - numpy
- - mwapi
- - beautifulsoup4
+## What can the _Crossword Solver_ do?
+1. **Solve a crossword board** (read from a file)
+2. **Display the solving process** the software applies while is solving the crossword. This helps us to check how the algorithm is working and introduce improvements based on its behaviour.
+3. **Generate crossword puzzles** given an empty crossword. We'll look for the solutions and afterwards look for the meanings of the words in an online dictionary (currently only in [_Wiktionary_](https://www.wiktionary.org/) in Catalan language)
 
-But, for the minimal use only `numpy` is required.
+## About the code
+The code is written in _Python 3_, and requires some libraries (available in [_PyPi_](https://pypi.python.org/pypi)):
 
-###### Notes
-1. En *sr.Ramón Baldrich* triga menys d'un minut (30-40s) en resoldre el *crossword* amb el diccionari gegant
-2. Utilitzar nombres en comptes de caràcters. No copiar dominis *around the backtracking*, usar indexos referents als diccionaris inicials. Podem usar una tupla per cada domini d'una variable. Aquesta tupla binària indica les paraules encara vàlides per al domini de la variable alhora d'aplicar *forward-checking*
-# Història
-## Temps
-Les proves s'han executat en dos PCs de sobre taula amb processador `Intel i7 4790k 4.0 Ghz` sota el sistema operatiu `Microsoft Windows 10 [10.0.14393]` i `Python 3.5.2`
+### Libraries
+#### Required
+The following libraries are required for the software to run:
+ - `numpy`
 
-1. **Backtracking bàsic**
-	- Sense `numpy`
-	- Agafem primera variable de la llista
-	- Sense *forward-checking*
-	- Domini separat per longituds de paraula
-	- Restriccions indexades per variable
-	- Usem classes / objectes
-	```
- 	SMALL SET:
-	Loading time: 	0.001501 +- 0.0005 seconds
-	Compute time:   0.095592 +- 0.0100 seconds
-	------------------------------------------
-	Total time:     0.097093 +- 0.0105 seconds
+#### Optional
+The following libraries must be present if you want to generate crossword puzzles based on an online dictionary
+ - `mwapi`
+ - `beautifulsoup4`
 
-	BIG SET:
-	Loading time:   45.061957 +- 2 seconds
-	Compute time:   18 hours & counting...
-	------------------------------------------
-	Total time:		∞
-	```
-2. **Backtracking bàsic + millora heurística**
-	- Sense `numpy`
-	- Agafem la variable de la llista amb més restriccions
-	- Sense *forward-checking*
-	- Domini separat per longituds de paraula
-	- Restriccions indexades per variable
-	- Usem classes / objectes
-	```
- 	SMALL SET:
-	Loading time: 	0.001501 +- 0.0005 seconds
-	Compute time:   0.000000 +- 0.0005 seconds
-	------------------------------------------
-	Total time:     0.001501 +- 0.0010 seconds
+### Running the application
+The application is command-line based so, open a terminal and change into the repo's root. Then, you can run the application calling to Python interpreter into main script:
+```bash
+python src/main.py -h
+```
+The `-h` argument will help you to discover how the software works and what it can do for you
 
-	BIG SET:
-	Loading time:   45.061957 +- 2 seconds
-	Compute time:   hours & counting...
-	------------------------------------------
-	Total time:		∞
-	```
-3. **Backtracking bàsic + restriccions dinàmiques + heurística**
-	- Sense `numpy`
-	- Agafem la variable de la llista amb més restriccions
-	- Sense *forward-checking*
-	- Domini separat per longituds de paraula
-	- Restriccions indexades per variable + **dinàmiques**
-	- Usem classes / objectes
-	- <span style="color:green">Fixed bug in crossword (last row var)</span>
-	```
- 	SMALL SET:
-	Loading time: 	0.001501 +- 0.0005 seconds
-	Compute time:   0.000000 +- 0.0005 seconds
-	------------------------------------------
-	Total time:     0.001501 +- 0.0010 seconds
+### License
+The code is licensed under Apache Software Foundation (_ASF_) License v2.0
 
-	BIG SET:
-	Keep dreaming...
-	```
-4. **Backtracking + _forward-checking_**
-	- Sense `numpy`
-	- Agafem primera variable de la llista
-	- Sense *forward-checking*
-	- Domini separat per longituds de paraula
-	- Restriccions indexades per variable
-	- Usem classes / objectes
-	```
- 	SMALL SET:
-	Loading time: 	 0.001501 +- 0.0005 seconds
-	Compute time:    0.000501 +- 0.0005 seconds
-	------------------------------------------
-	Total time:      0.002002 +- 0.0010 seconds
-
-	BIG SET:
-	Loading time:   45.061957 +- 2 seconds
-	Compute time:   ? hours & counting...
-	------------------------------------------
-	Total time:		∞
-	```
-
-***Made with love in ETSE, UAB by ccebrecos & davidlj***
+***Made with love in [ETSE](https://uab.cat/enginyeria), UAB by @ccebrecos & @davidlj***
+<center><img src="http://www.uab.cat/doc/logo-UAB.png" width="100" alt="UAB Logotype"></center>
